@@ -1,52 +1,17 @@
-export const addItem = (item) => {
+export const setUser = (user) => {
 	return (dispatch) => {
 		dispatch({
-			type: "add",
-			payload: item,
+			type: "setUser",
+			user: user,
 		});
 	};
 };
 
-export const removeItem = (id) => {
+export const LoginOpen = (isOpen) => {
 	return (dispatch) => {
 		dispatch({
-			type: "remove",
-			payload: id,
-		});
-	};
-};
-
-export const removeMultiple = (ids) => {
-	return (dispatch) => {
-		dispatch({
-			type: "removeMultiple",
-			payload: ids,
-		});
-	};
-};
-
-export const removeAll = () => {
-	return (dispatch) => {
-		dispatch({
-			type: "removeAll",
-		});
-	};
-};
-
-export const addQuantity = (id) => {
-	return (dispatch) => {
-		dispatch({
-			type: "addQuantity",
-			payload: id,
-		});
-	};
-};
-
-export const removeQuantity = (id) => {
-	return (dispatch) => {
-		dispatch({
-			type: "removeQuantity",
-			payload: id,
+			type: "LoginOpen",
+			isOpen: isOpen,
 		});
 	};
 };
@@ -55,16 +20,7 @@ export const initialState = (state) => {
 	return (dispatch) => {
 		dispatch({
 			type: "initialState",
-			payload: state,
-		});
-	};
-};
-
-export const priceSort = (min, max) => {
-	return (dispatch) => {
-		dispatch({
-			type: "priceSort",
-			range: { min, max },
+			state: state,
 		});
 	};
 };

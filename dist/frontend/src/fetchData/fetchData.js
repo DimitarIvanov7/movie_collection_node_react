@@ -7,11 +7,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import fetch from "node-fetch";
-export const searchMovies = (query, key) => __awaiter(void 0, void 0, void 0, function* () {
-    const url = `https://api.themoviedb.org/3/search/movie?api_key=${key}&query=${query}`;
-    const res = yield fetch(url);
-    const resJson = yield res.json();
-    return resJson;
+export const searchMovies = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const res = yield fetch(`/search/${query}`);
+    const resJSON = yield res.json();
+    return resJSON;
 });
-//# sourceMappingURL=searchMany.js.map
+export const getSingleMovie = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const res = yield fetch(`/movies/${id}`);
+    const resJSON = yield res.json();
+    return resJSON;
+});
+export const getAllGenres = () => __awaiter(void 0, void 0, void 0, function* () {
+    const res = yield fetch(`/genres/`);
+    const resJSON = yield res.json();
+    return resJSON;
+});
+//# sourceMappingURL=fetchData.js.map

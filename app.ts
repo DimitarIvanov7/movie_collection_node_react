@@ -4,16 +4,27 @@ dotenv.config();
 import morgan from "morgan";
 import mongoose from "mongoose";
 import cors from "cors";
-import { Secret, decode, verify, sign } from "jsonwebtoken";
+import User from "./models/users_mod.js";
+import bcrypt from "bcrypt";
 
-import { searchMovies } from "./getMovieData/searchMany";
+import pkg from "jsonwebtoken";
+const { Secret, decode, verify, sign } = pkg;
+
+import {
+	searchMovies,
+	getMovie,
+	getAllGenres,
+} from "./getMovieData/searchMovies.js";
+import { log } from "console";
 
 const app = express();
 const port = process.env.PORT;
 const mongoURI = process.env.MONGODB_URI;
 const movieAPI = process.env.MOVIEDB_KEY;
 
-// http://image.tmdb.org/t/p/
+const secretRefreshKey = process.env.REFRESH_TOKEN_SECRET;
+
+const secretAccessKey = process.env.ACCESS_TOKEN_SECRET;
 
 app.use(express.json());
 
@@ -38,132 +49,220 @@ const users = [
 		id: "1",
 		username: "john",
 		password: "John0908",
-		isAdmin: true,
 	},
 	{
 		id: "2",
 		username: "jane",
 		password: "Jane0908",
-		isAdmin: false,
 	},
 ];
 
-// let refreshTokens: string[] = [];
+let refreshTokens: string[] = [];
 
-// app.post("/api/refresh", (req, res) => {
-// 	//take the refresh token from the user
-// 	const refreshToken = req.body.token;
+app.post("/api/refresh", (req, res) => {
+	//take the refresh token from the user
+	const refreshToken = req.body.token;
 
-// 	//send error if there is no token or it's invalid
-// 	if (!refreshToken) return res.status(401).json("You are not authenticated!");
-// 	if (!refreshTokens.includes(refreshToken)) {
-// 		return res.status(403).json("Refresh token is not valid!");
-// 	}
-// 	verify(refreshToken, "myRefreshSecretKey", (err: any, user: any) => {
-// 		err && console.log(err);
-// 		refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+	//send error if there is no token or it's invalid
+	if (!refreshToken) return res.status(401).json("You are not authenticated!");
+	if (!refreshTokens.includes(refreshToken)) {
+		return res.status(403).json("Refresh token is not valid!");
+	}
+	verify(refreshToken, secretRefreshKey, (err: any, user: any) => {
+		err && console.log(err);
+		refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
 
-// 		const newAccessToken = generateAccessToken(user);
-// 		const newRefreshToken = generateRefreshToken(user);
+		const newAccessToken = generateAccessToken(user);
+		const newRefreshToken = generateRefreshToken(user);
 
-// 		refreshTokens.push(newRefreshToken);
+		refreshTokens.push(newRefreshToken);
 
-// 		res.status(200).json({
-// 			accessToken: newAccessToken,
-// 			refreshToken: newRefreshToken,
-// 		});
-// 	});
+		res.status(200).json({
+			accessToken: newAccessToken,
+			refreshToken: newRefreshToken,
+		});
+	});
 
-// 	//if everything is ok, create new access token, refresh token and send to user
-// });
-
-// const generateAccessToken = (user: any) => {
-// 	return sign({ id: user.id, isAdmin: user.isAdmin }, "mySecretKey", {
-// 		expiresIn: "5s",
-// 	});
-// };
-
-// const generateRefreshToken = (user: any) => {
-// 	return sign({ id: user.id, isAdmin: user.isAdmin }, "myRefreshSecretKey");
-// };
-
-// const verifyUser = (req: any, res: any, next: any) => {
-// 	const authHeader = req.headers.authorization;
-// 	if (authHeader) {
-// 		const token = authHeader.split(" ")[1];
-
-// 		verify(token, "mySecretKey", (err: any, user: any) => {
-// 			if (err) {
-// 				return res.status(403).json("Token is not valid!");
-// 			}
-
-// 			req.user = user;
-// 			next();
-// 		});
-// 	} else {
-// 		res.status(401).json("You are not authenticated!");
-// 	}
-// };
-
-// app.delete("/api/users/:userId", verifyUser, (req: any, res) => {
-// 	if (req.user.id === req.params.userId || req.user.isAdmin) {
-// 		res.status(200).json("User has been deleted.");
-// 	} else {
-// 		res.status(403).json("You are not allowed to delete this user!");
-// 	}
-// });
-
-// app.post("/api/logout", verifyUser, (req, res) => {
-// 	const refreshToken = req.body.token;
-// 	refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
-// 	res.status(200).json("You logged out successfully.");
-// });
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-app.get("/api/search/", async (req, res) => {
-	console.log(req.body);
-
-	res.send("test");
+	//if everything is ok, create new access token, refresh token and send to user
 });
+
+const generateAccessToken = (user: any) => {
+	return sign({ id: user.id }, secretAccessKey, {
+		expiresIn: "15m",
+	});
+};
+
+const generateRefreshToken = (user: any) => {
+	return sign({ id: user.id }, secretRefreshKey);
+};
+
+app.post("/api/login", async (req, res) => {
+	const username = req.body.username;
+
+	const validName = await User.findOne({ name: username });
+
+	if (!validName) {
+		res.json("Wrong username");
+		return;
+	}
+
+	const validPass = await bcrypt.compare(req.body.password, validName.password);
+
+	if (validPass) {
+		//Generate an access token
+		const accessToken = generateAccessToken(validPass);
+		const refreshToken = generateRefreshToken(validPass);
+		refreshTokens.push(refreshToken);
+		res.json({
+			username: username,
+			accessToken,
+			refreshToken,
+			favourite: validName.favourite,
+		});
+	} else {
+		res.status(400).json("Wrong password!");
+	}
+});
+
+const verifyUser = (req: any, res: any, next: any) => {
+	const authHeader = req.headers.authorization;
+	if (authHeader) {
+		const token = authHeader.split(" ")[1];
+
+		verify(token, secretAccessKey, (err: any, user: any) => {
+			if (err) {
+				return res.status(403).json("Token is not valid!");
+			}
+
+			req.user = user;
+			next();
+		});
+	} else {
+		res.status(401).json("You are not authenticated!");
+	}
+};
+
+app.get("/api/users/:username", verifyUser, async (req: any, res) => {
+	const user = await User.findOne({ name: req.params.username });
+
+	if (user) res.json(user);
+	else res.json("error");
+});
+
+app.delete("/api/users/:userId", verifyUser, (req: any, res) => {
+	if (req.user.id === req.params.userId) {
+		res.status(200).json("User has been deleted.");
+	} else {
+		res.status(403).json("You are not allowed to delete this user!");
+	}
+});
+
+app.post("/api/logout", verifyUser, (req, res) => {
+	const refreshToken = req.body.token;
+	refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+	res.status(200).json("You logged out successfully.");
+});
+
+app.post("/api/favourite", verifyUser, async (req, res) => {
+	const movieId = req.body.id;
+	const username = req.body.username;
+
+	await User.findOneAndUpdate(
+		{ name: username },
+		{
+			$push: {
+				favourite: {
+					id: movieId,
+					rating: 0,
+					comments: [],
+				},
+			},
+		}
+	);
+
+	const updatedUser = await User.findOne({ name: username });
+
+	res.json(updatedUser.favourite);
+});
+
+app.delete("/api/favourite/:id", verifyUser, async (req, res) => {
+	const movieId = req.params.id;
+	const username = req.body.username;
+
+	await User.updateMany(
+		{ name: username },
+		{
+			$pull: {
+				favourite: {
+					id: parseInt(movieId),
+				},
+			},
+		}
+	);
+
+	const updatedUser = await User.findOne({ name: username });
+
+	res.json(updatedUser.favourite);
+});
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 app.get("/api/search/:title", async (req, res) => {
 	const param = req.params.title;
 
 	const moviesJSON = movieAPI && (await searchMovies(param, movieAPI));
 
-	console.log(moviesJSON);
+	res.send(moviesJSON);
 });
 
-app.get("/api/movies/", async (req, res) => {
-	res.send("return all movies");
+app.get("/api/movies/:id", async (req, res) => {
+	const param = req.params.id;
+
+	const movieJSON = movieAPI && (await getMovie(param, movieAPI));
+
+	res.send(movieJSON);
 });
 
-app.get("/api/movies/:title", async (req, res) => {
-	res.send("test 2");
+app.get("/api/genres/", async (req, res) => {
+	const categorieJSON = movieAPI && (await getAllGenres(movieAPI));
+
+	res.send(categorieJSON);
 });
 
-app.get("/api/favorite/:id", async (req, res) => {
-	res.send("test 3 ");
+app.post("/api/user", async (req, res) => {
+	const salt = await bcrypt.genSalt();
+	const hashedPass = await bcrypt.hash(req.body.password, salt);
+
+	const username = req.body.name;
+
+	const exists = await User.findOne({ name: username });
+
+	if (exists) {
+		res.send("User already exists");
+		return;
+	}
+
+	const user = new User({
+		name: req.body.name,
+		password: hashedPass,
+	});
+
+	user.save().then(() => {
+		res.send("Successfully created");
+	});
 });
 
-app.get("/api/rating/:id", async (req, res) => {
-	res.send("test 4");
-});
-
-app.get("/api/notes/:id", async (req, res) => {
-	res.send("test 5");
-});
+//
