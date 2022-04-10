@@ -12,16 +12,16 @@ export interface User {
 }
 
 export interface Search {
-	username: string;
-	favourite: number[];
-	interested: [
-		{
-			id: number;
-			rating: number;
-			comment: string;
-		}
-	];
-	accessToken: string;
+	data: {
+		genre_ids: number[];
+		id: number;
+		overview: string;
+		title: string;
+		vote_average: number;
+		release_date: string;
+	};
+	genre: string;
+	img: string;
 }
 
 export interface genreInterface {
@@ -39,19 +39,16 @@ export interface MovieInterface {
 		}>;
 		overview: string;
 		homepage: string;
+		release_date: string;
+		vote_average: number;
 	};
+	genre: string;
 	img: string;
 }
 
 export interface State {
-	loginOpen: boolean;
-	user: User;
-	search: Array<{
-		overview: string;
-		id: number;
-		poster_path: string;
-		genre_ids: number[];
-		release_date: string;
-		vote_average: number;
-	}>;
+	loginOpen?: boolean;
+	user?: User;
+	search?: Search[];
+	movie: MovieInterface;
 }

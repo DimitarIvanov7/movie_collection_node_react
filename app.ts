@@ -6,10 +6,8 @@ import mongoose from "mongoose";
 import cors from "cors";
 import User from "./models/users_mod.js";
 import bcrypt from "bcrypt";
-
 import pkg from "jsonwebtoken";
 const { verify, sign } = pkg;
-
 import {
 	searchMovies,
 	getMovie,
@@ -42,10 +40,13 @@ mongoURI &&
 
 //authentication and authorization
 
-const generateAccessToken = (user) => {
-	return sign({ id: user.id }, secretAccessKey, {
-		expiresIn: "20m",
-	});
+const generateAccessToken = (user: { name: string }) => {
+	return (
+		secretAccessKey &&
+		sign({ name: user.name }, secretAccessKey, {
+			expiresIn: "20m",
+		})
+	);
 };
 
 app.post("/api/user", async (req, res) => {
@@ -85,9 +86,11 @@ app.post("/api/login", async (req, res) => {
 
 	const validPass = await bcrypt.compare(req.body.password, validName.password);
 
+	console.log(validPass);
+
 	if (validPass) {
 		//Generate an access token
-		const accessToken = generateAccessToken(validPass);
+		const accessToken = generateAccessToken(username);
 		res.json({
 			username: username,
 			accessToken,
@@ -104,14 +107,15 @@ const verifyUser = (req, res, next) => {
 	if (authHeader) {
 		const token = authHeader.split(" ")[1];
 
-		verify(token, secretAccessKey, (err, user) => {
-			if (err) {
-				return res.status(403).json("Token is not valid!");
-			}
+		secretAccessKey &&
+			verify(token, secretAccessKey, (err, user) => {
+				if (err) {
+					return res.status(403).json("Token is not valid!");
+				}
 
-			req.user = user;
-			next();
-		});
+				req.user = user;
+				next();
+			});
 	} else {
 		res.status(401).json("You are not authenticated!");
 	}
@@ -125,8 +129,6 @@ app.post("/api/favourite", verifyUser, async (req, res) => {
 	const movieId = parseInt(req.body.id);
 	const username = req.body.username;
 
-	console.log(movieId);
-
 	await User.findOneAndUpdate(
 		{ name: username },
 		{
@@ -137,8 +139,6 @@ app.post("/api/favourite", verifyUser, async (req, res) => {
 	);
 
 	const updatedUser = await User.findOne({ name: username });
-
-	console.log(updatedUser.favourite);
 
 	res.json(updatedUser.favourite);
 });
@@ -197,7 +197,9 @@ app.post("/api/interested/comment/:movieId", verifyUser, async (req, res) => {
 
 		const prevComment =
 			userInfo.interested &&
-			userInfo.interested.filter((movie) => movie.id === movieId)[0].comment;
+			userInfo.interested.filter(
+				(movie: { id: number }) => movie.id === movieId
+			)[0].comment;
 
 		await User.findOneAndUpdate(
 			{ name: username, "interested.id": movieId },
@@ -260,8 +262,6 @@ app.post("/api/interested/rate/:movieId", verifyUser, async (req, res) => {
 		name: username,
 		"interested.id": movieId,
 	});
-
-	console.log(checkInterested);
 
 	if (!checkInterested) {
 		await addIntrestedRate(username, movieId, rate);

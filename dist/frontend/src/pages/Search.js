@@ -16,6 +16,7 @@ import SpecificMovie from "../components/SpecificMovie";
 import { useSelector, useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
 import { actionCreators } from "../state/index";
+import { v4 as uuidv4 } from "uuid";
 const Search = () => {
     const { search } = useLocation();
     const q = search.substring(3);
@@ -25,12 +26,13 @@ const Search = () => {
     const dispatch = useDispatch();
     const { initialState } = bindActionCreators(actionCreators, dispatch);
     const searchState = useSelector((state) => state.search);
+    console.log(searchState);
     useEffect(() => {
         getSearchResults();
         getGenres();
     }, [q]);
     useEffect(() => {
-        searchState.length > 0 && setResults(searchState);
+        searchState && searchState.length > 0 && setResults(searchState);
     }, [searchState]);
     const getSearchResults = () => __awaiter(void 0, void 0, void 0, function* () {
         const res = yield searchMovies(q);
@@ -46,28 +48,33 @@ const Search = () => {
             setResults(searchState);
             return;
         }
-        setResults(searchState.filter((result) => result.genre === selected));
+        searchState &&
+            setResults(searchState.filter((result) => result.genre === selected));
     };
     const [isPopularitySortUp, setIsPopularitySortUp] = useState(false);
     const handlePopularitySort = () => {
         if (isPopularitySortUp) {
-            setResults(searchState.sort(function (a, b) {
-                return a.data.vote_average - b.data.vote_average;
-            }));
+            searchState &&
+                setResults(searchState.sort(function (a, b) {
+                    return a.data.vote_average - b.data.vote_average;
+                }));
         }
         else {
-            setResults(searchState.sort(function (a, b) {
-                return b.data.vote_average - a.data.vote_average;
-            }));
+            searchState &&
+                setResults(searchState.sort(function (a, b) {
+                    return b.data.vote_average - a.data.vote_average;
+                }));
         }
     };
     const [isDateReleasedUp, setIsDateReleasedUp] = useState(false);
     const handleDateSort = () => {
         if (isDateReleasedUp) {
-            setResults(searchState.sort((a, b) => new Date(a.data.release_date) - new Date(b.data.release_date)));
+            searchState &&
+                setResults(searchState.sort((a, b) => new Date(a.data.release_date) - new Date(b.data.release_date)));
         }
         else {
-            setResults(searchState.sort((a, b) => new Date(b.data.release_date) - new Date(a.data.release_date)));
+            searchState &&
+                setResults(searchState.sort((a, b) => new Date(b.data.release_date) - new Date(a.data.release_date)));
         }
     };
     return (<div>
@@ -106,7 +113,7 @@ const Search = () => {
 					<h2>Results</h2>
 					<div className="results-wrapper">
 						{results &&
-            results.map((result) => <SpecificMovie movie={result}/>)}
+            results.map((result) => (<SpecificMovie key={uuidv4()} movie={result}/>))}
 					</div>
 				</div>
 			</section>

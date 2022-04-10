@@ -17,25 +17,25 @@ const removeAdultFilms = (movie) => {
 };
 export const getAllGenres = (key) => __awaiter(void 0, void 0, void 0, function* () {
     const res = yield fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${key}&language=en-US`);
-    const resJSON = yield res.json();
+    const resJSON = (yield res.json());
     return resJSON.genres;
 });
 const getGenre = (id, key) => __awaiter(void 0, void 0, void 0, function* () {
     const res = yield fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${key}&language=en-US`);
-    const resJSON = yield res.json();
-    const data = yield resJSON.genres.filter((genre) => genre.id === id)[0];
+    const resJSON = (yield res.json());
+    const data = resJSON.genres.filter((genre) => genre.id === id)[0];
     return data && data.name;
 });
 const configurationMovieDB = (key) => __awaiter(void 0, void 0, void 0, function* () {
     const res = yield fetch(`https://api.themoviedb.org/3/configuration?api_key=${key}`);
-    const resJSON = yield res.json();
+    const resJSON = (yield res.json());
     const url = resJSON.images.secure_base_url + "w500";
     return url;
 });
 export const searchMovies = (query, key) => __awaiter(void 0, void 0, void 0, function* () {
     const url = `https://api.themoviedb.org/3/search/movie?api_key=${key}&query=${query}`;
     const res = yield fetch(url);
-    const resJson = yield res.json();
+    const resJson = (yield res.json());
     const imgURL = yield configurationMovieDB(key);
     const data = resJson.results
         .filter((movie) => removeAdultFilms(movie))
@@ -52,7 +52,7 @@ export const searchMovies = (query, key) => __awaiter(void 0, void 0, void 0, fu
 export const getMovie = (id, key) => __awaiter(void 0, void 0, void 0, function* () {
     const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${key}`;
     const res = yield fetch(url);
-    const resJson = yield res.json();
+    const resJson = (yield res.json());
     const imgURL = yield configurationMovieDB(key);
     return {
         data: resJson,

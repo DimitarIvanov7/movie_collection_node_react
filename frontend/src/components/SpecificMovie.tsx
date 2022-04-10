@@ -5,19 +5,22 @@ import { useSelector, useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
 import { actionCreators } from "../state/index";
 import { useState, useEffect } from "react";
+import { State } from "../interfaces/main.interface";
 
-const SpecificMovie = ({ movie }) => {
+const SpecificMovie = ({ movie }: State) => {
 	const route = movie && `/movies/${movie.data.id}`;
 
-	const userState = useSelector((state) => state.user);
+	const userState = useSelector((state: State) => state.user);
 
-	const [isFavourite, setIsFavourite] = useState(false);
+	const [isFavourite, setIsFavourite] = useState<boolean>(false);
 
 	useEffect(() => {
-		const favList = userState && userState.favourite.map((fav: number) => fav);
+		const favList = userState
+			? userState.favourite.map((fav: number) => fav)
+			: false;
 
-		userState
-			? setIsFavourite(favList.includes(parseInt(movie.data.id)))
+		userState && favList
+			? setIsFavourite(favList.includes(movie.data.id))
 			: setIsFavourite(false);
 	}, [userState]);
 

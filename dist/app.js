@@ -37,9 +37,10 @@ mongoURI &&
         .catch((err) => console.log(err));
 //authentication and authorization
 const generateAccessToken = (user) => {
-    return sign({ id: user.id }, secretAccessKey, {
-        expiresIn: "20m",
-    });
+    return (secretAccessKey &&
+        sign({ name: user.name }, secretAccessKey, {
+            expiresIn: "20m",
+        }));
 };
 app.post("/api/user", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const salt = yield bcrypt.genSalt();
@@ -68,9 +69,10 @@ app.post("/api/login", (req, res) => __awaiter(void 0, void 0, void 0, function*
         return;
     }
     const validPass = yield bcrypt.compare(req.body.password, validName.password);
+    console.log(validPass);
     if (validPass) {
         //Generate an access token
-        const accessToken = generateAccessToken(validPass);
+        const accessToken = generateAccessToken(username);
         res.json({
             username: username,
             accessToken,
@@ -86,13 +88,14 @@ const verifyUser = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (authHeader) {
         const token = authHeader.split(" ")[1];
-        verify(token, secretAccessKey, (err, user) => {
-            if (err) {
-                return res.status(403).json("Token is not valid!");
-            }
-            req.user = user;
-            next();
-        });
+        secretAccessKey &&
+            verify(token, secretAccessKey, (err, user) => {
+                if (err) {
+                    return res.status(403).json("Token is not valid!");
+                }
+                req.user = user;
+                next();
+            });
     }
     else {
         res.status(401).json("You are not authenticated!");
@@ -104,14 +107,12 @@ app.post("/api/logout", verifyUser, (req, res) => {
 app.post("/api/favourite", verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const movieId = parseInt(req.body.id);
     const username = req.body.username;
-    console.log(movieId);
     yield User.findOneAndUpdate({ name: username }, {
         $push: {
             favourite: [movieId],
         },
     });
     const updatedUser = yield User.findOne({ name: username });
-    console.log(updatedUser.favourite);
     res.json(updatedUser.favourite);
 }));
 app.delete("/api/favourite/:id", verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -190,7 +191,6 @@ app.post("/api/interested/rate/:movieId", verifyUser, (req, res) => __awaiter(vo
         name: username,
         "interested.id": movieId,
     });
-    console.log(checkInterested);
     if (!checkInterested) {
         yield addIntrestedRate(username, movieId, rate);
     }

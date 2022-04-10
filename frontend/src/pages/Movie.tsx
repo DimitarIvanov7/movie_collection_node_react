@@ -22,6 +22,8 @@ import {
 	genreInterface,
 } from "../interfaces/main.interface";
 
+import { v4 as uuidv4 } from "uuid";
+
 const Movie = () => {
 	const { id } = useParams();
 
@@ -35,7 +37,7 @@ const Movie = () => {
 	};
 
 	const getGenres = (genre: genreInterface) => {
-		return <p>{genre.name}</p>;
+		return <p key={uuidv4()}>{genre.name}</p>;
 	};
 
 	const userState = useSelector((state: State) => state.user);
@@ -43,7 +45,8 @@ const Movie = () => {
 	const [isFavourite, setIsFavourite] = useState(false);
 
 	const interest =
-		userState.interested &&
+		userState &&
+		id &&
 		userState.interested.filter((movie) => movie.id === parseInt(id))[0];
 
 	useEffect(() => {
@@ -54,7 +57,7 @@ const Movie = () => {
 		const favList = userState && userState.favourite.map((fav: number) => fav);
 
 		userState
-			? id && setIsFavourite(favList.includes(parseInt(id)))
+			? id && favList && setIsFavourite(favList.includes(parseInt(id)))
 			: id && setIsFavourite(false);
 
 		userState ? setRating(interest ? interest.rating : 0) : setRating(0);
@@ -72,12 +75,18 @@ const Movie = () => {
 		const movieId = movie && movie.data.id;
 		const res =
 			type === "add"
-				? await addFavourite(movieId, userState.accessToken, userState.username)
-				: await deleteFavourite(
+				? movieId &&
+				  (await addFavourite(
 						movieId,
 						userState.accessToken,
 						userState.username
-				  );
+				  ))
+				: movieId &&
+				  (await deleteFavourite(
+						movieId,
+						userState.accessToken,
+						userState.username
+				  ));
 
 		if (res === "Token is not valid!") {
 			window.location.reload();
@@ -129,6 +138,7 @@ const Movie = () => {
 	const handeDeleteComment = async () => {
 		const res =
 			id &&
+			userState &&
 			(await deleteComment(
 				parseInt(id),
 				userState.accessToken,
@@ -241,7 +251,9 @@ const Movie = () => {
 							</form>
 							<button
 								onClick={handeDeleteComment}
-								disabled={interest && interest.comment.length === 0}
+								disabled={
+									interest && interest.comment.length !== 0 ? false : true
+								}
 							>
 								Delete comment
 							</button>

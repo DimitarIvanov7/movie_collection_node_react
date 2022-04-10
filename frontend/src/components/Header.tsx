@@ -1,14 +1,12 @@
 import React from "react";
 import classes from "../tailwindClasses";
 import { useLocation, useNavigate } from "react-router-dom";
-
 import { Link } from "react-router-dom";
-
 import { useDispatch, useSelector } from "react-redux";
 import { bindActionCreators } from "redux";
 import { actionCreators } from "../state/index";
-
 import { logoutUser } from "../fetchData/Auth";
+import { State } from "../interfaces/main.interface";
 
 const Header = () => {
 	const location = useLocation();
@@ -26,15 +24,19 @@ const Header = () => {
 	const dispatch = useDispatch();
 	const { LoginOpen, setUser } = bindActionCreators(actionCreators, dispatch);
 
-	const userState = useSelector((state) => state.user);
+	const userState = useSelector((state: State) => state.user);
 
 	const handeLogout = async (e) => {
 		e.preventDefault();
 
-		const res = await logoutUser(userState.accessToken, userState.refreshToken);
+		const res = userState && (await logoutUser(userState.accessToken));
 
 		if (res === "You logged out successfully.") setUser(false);
-		else alert("Error");
+		else {
+			window.location.reload();
+			alert("Your token has expired");
+			return;
+		}
 	};
 
 	const background = location.pathname === "/" ? "bg-transparent" : "bg-dark";
@@ -50,6 +52,7 @@ const Header = () => {
 						name="movie"
 						className="bg-gray appearance-none border-2 border-gray rounded w-full py-2 px-4 text-gray leading-tight focus:outline-none focus:bg-white focus:border-gray"
 						placeholder="Search by movie title... "
+						required
 					/>
 					<button type="submit" className={classes.button}>
 						Search

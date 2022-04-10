@@ -5,27 +5,27 @@ import { getSingleMovie } from "../fetchData/fetchData";
 import SpecificMovie from "../components/SpecificMovie";
 import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
+import { State, MovieInterface } from "../interfaces/main.interface";
+import { v4 as uuidv4 } from "uuid";
 
 const Home = () => {
-	const userState = useSelector((state) => state.user);
+	const userState = useSelector((state: State) => state.user);
 
-	const [favourite, setFavourite] = useState([]);
+	const [favourite, setFavourite] = useState<MovieInterface[]>([]);
 
 	useEffect(() => {
-		GetFavourites();
+		userState && GetFavourites();
 	}, [userState]);
-
-	console.log(favourite);
 
 	const favList = userState && userState.favourite.map((fav: number) => fav);
 
 	const GetFavourites = async () => {
 		const multipleRes =
 			favList &&
-			(await favList.map(async (fav: number) => {
+			(favList.map(async (fav: number) => {
 				const res = await getSingleMovie(fav);
 				return res;
-			}));
+			}) as Promise<MovieInterface>[]);
 
 		const awaitAll = await Promise.all(multipleRes).then((values) => values);
 
@@ -40,7 +40,9 @@ const Home = () => {
 				{userState ? (
 					<section>
 						{favourite.length > 0 ? (
-							favourite.map((fav) => <SpecificMovie movie={fav} />)
+							favourite.map((fav) => (
+								<SpecificMovie key={uuidv4()} movie={fav} />
+							))
 						) : (
 							<p>Your favourite list is empty</p>
 						)}

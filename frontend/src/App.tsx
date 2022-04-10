@@ -4,11 +4,11 @@ import Home from "./pages/Home";
 import Search from "./pages/Search";
 import Movie from "./pages/Movie";
 import Login from "./components/Login";
-
 import { useSelector } from "react-redux";
+import { State } from "./interfaces/main.interface";
 
 function App() {
-	const loginState = useSelector((state) => state.loginOpen);
+	const loginState = useSelector((state: State) => state.loginOpen);
 
 	return (
 		<div className="App">

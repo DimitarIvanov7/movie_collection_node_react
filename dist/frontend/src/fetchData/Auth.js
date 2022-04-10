@@ -84,7 +84,6 @@ export const addComment = (movieId, accesToken, username, comment) => __awaiter(
         },
         body: JSON.stringify({ username: username, comment: comment }),
     });
-    console.log(res);
     const resJSON = yield res.json();
     return resJSON;
 });

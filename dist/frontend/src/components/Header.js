@@ -29,11 +29,14 @@ const Header = () => {
     const userState = useSelector((state) => state.user);
     const handeLogout = (e) => __awaiter(void 0, void 0, void 0, function* () {
         e.preventDefault();
-        const res = yield logoutUser(userState.accessToken, userState.refreshToken);
+        const res = userState && (yield logoutUser(userState.accessToken));
         if (res === "You logged out successfully.")
             setUser(false);
-        else
-            alert("Error");
+        else {
+            window.location.reload();
+            alert("Your token has expired");
+            return;
+        }
     });
     const background = location.pathname === "/" ? "bg-transparent" : "bg-dark";
     return (<header className={`p-4 flex justify-between ${background}`}>
@@ -42,7 +45,7 @@ const Header = () => {
 			</Link>
 			<div className="form-container flex gap-x-1.5">
 				<form onSubmit={(e) => handleSearch(e)} className="flex gap-x-1.5">
-					<input type="text" name="movie" className="bg-gray appearance-none border-2 border-gray rounded w-full py-2 px-4 text-gray leading-tight focus:outline-none focus:bg-white focus:border-gray" placeholder="Search by movie title... "/>
+					<input type="text" name="movie" className="bg-gray appearance-none border-2 border-gray rounded w-full py-2 px-4 text-gray leading-tight focus:outline-none focus:bg-white focus:border-gray" placeholder="Search by movie title... " required/>
 					<button type="submit" className={classes.button}>
 						Search
 					</button>

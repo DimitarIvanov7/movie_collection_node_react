@@ -14,20 +14,20 @@ import { getSingleMovie } from "../fetchData/fetchData";
 import SpecificMovie from "../components/SpecificMovie";
 import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 const Home = () => {
     const userState = useSelector((state) => state.user);
     const [favourite, setFavourite] = useState([]);
     useEffect(() => {
-        GetFavourites();
+        userState && GetFavourites();
     }, [userState]);
-    console.log(favourite);
     const favList = userState && userState.favourite.map((fav) => fav);
     const GetFavourites = () => __awaiter(void 0, void 0, void 0, function* () {
         const multipleRes = favList &&
-            (yield favList.map((fav) => __awaiter(void 0, void 0, void 0, function* () {
+            favList.map((fav) => __awaiter(void 0, void 0, void 0, function* () {
                 const res = yield getSingleMovie(fav);
                 return res;
-            })));
+            }));
         const awaitAll = yield Promise.all(multipleRes).then((values) => values);
         setFavourite(awaitAll);
     });
@@ -36,7 +36,7 @@ const Home = () => {
 			<div className="w-full bg-dark-max h-12 cursor-pointer">
 				<h2 className={classes.heading}>Check your favourite movies</h2>
 				{userState ? (<section>
-						{favourite.length > 0 ? (favourite.map((fav) => <SpecificMovie movie={fav}/>)) : (<p>Your favourite list is empty</p>)}
+						{favourite.length > 0 ? (favourite.map((fav) => (<SpecificMovie key={uuidv4()} movie={fav}/>))) : (<p>Your favourite list is empty</p>)}
 					</section>) : (<p>You need to login to see your favourites</p>)}
 			</div>
 		</div>);

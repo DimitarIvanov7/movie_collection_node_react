@@ -19,9 +19,11 @@ const SpecificMovie = ({ movie }) => {
     const userState = useSelector((state) => state.user);
     const [isFavourite, setIsFavourite] = useState(false);
     useEffect(() => {
-        const favList = userState && userState.favourite.map((fav) => fav);
-        userState
-            ? setIsFavourite(favList.includes(parseInt(movie.data.id)))
+        const favList = userState
+            ? userState.favourite.map((fav) => fav)
+            : false;
+        userState && favList
+            ? setIsFavourite(favList.includes(movie.data.id))
             : setIsFavourite(false);
     }, [userState]);
     const dispatch = useDispatch();

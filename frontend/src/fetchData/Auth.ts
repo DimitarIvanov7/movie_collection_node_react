@@ -107,8 +107,6 @@ export const addComment = async (
 		body: JSON.stringify({ username: username, comment: comment }),
 	});
 
-	console.log(res);
-
 	const resJSON = await res.json();
 
 	return resJSON;

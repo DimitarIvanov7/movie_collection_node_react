@@ -17,6 +17,7 @@ import { addFavourite, deleteFavourite, addComment, addRating, deleteComment, } 
 import { useSelector, useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
 import { actionCreators } from "../state/index";
+import { v4 as uuidv4 } from "uuid";
 const Movie = () => {
     const { id } = useParams();
     const [movie, setMovie] = useState();
@@ -26,18 +27,19 @@ const Movie = () => {
         setMovie(res);
     });
     const getGenres = (genre) => {
-        return <p>{genre.name}</p>;
+        return <p key={uuidv4()}>{genre.name}</p>;
     };
     const userState = useSelector((state) => state.user);
     const [isFavourite, setIsFavourite] = useState(false);
-    const interest = userState.interested &&
+    const interest = userState &&
+        id &&
         userState.interested.filter((movie) => movie.id === parseInt(id))[0];
     useEffect(() => {
         getMovieData();
         !userState && setIsFavourite(false);
         const favList = userState && userState.favourite.map((fav) => fav);
         userState
-            ? id && setIsFavourite(favList.includes(parseInt(id)))
+            ? id && favList && setIsFavourite(favList.includes(parseInt(id)))
             : id && setIsFavourite(false);
         userState ? setRating(interest ? interest.rating : 0) : setRating(0);
     }, [id, userState]);
@@ -50,8 +52,10 @@ const Movie = () => {
         }
         const movieId = movie && movie.data.id;
         const res = type === "add"
-            ? yield addFavourite(movieId, userState.accessToken, userState.username)
-            : yield deleteFavourite(movieId, userState.accessToken, userState.username);
+            ? movieId &&
+                (yield addFavourite(movieId, userState.accessToken, userState.username))
+            : movieId &&
+                (yield deleteFavourite(movieId, userState.accessToken, userState.username));
         if (res === "Token is not valid!") {
             window.location.reload();
             alert("Your token has expired");
@@ -82,6 +86,7 @@ const Movie = () => {
     });
     const handeDeleteComment = () => __awaiter(void 0, void 0, void 0, function* () {
         const res = id &&
+            userState &&
             (yield deleteComment(parseInt(id), userState.accessToken, userState.username));
         if (res === "Token is not valid!") {
             window.location.reload();
@@ -148,7 +153,7 @@ const Movie = () => {
 
 								<button type="submit">Submit comment</button>
 							</form>
-							<button onClick={handeDeleteComment} disabled={interest && interest.comment.length === 0}>
+							<button onClick={handeDeleteComment} disabled={interest && interest.comment.length !== 0 ? false : true}>
 								Delete comment
 							</button>
 						</section>

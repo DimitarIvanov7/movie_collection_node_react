@@ -1,6 +1,32 @@
 import fetch from "node-fetch";
 
-const removeAdultFilms = (movie: object) => {
+interface MovieInterface {
+	adult: boolean;
+	title: string;
+	id: number;
+	genre_ids: number[];
+	genres: Array<{
+		id: number;
+		name: string;
+	}>;
+	overview: string;
+	homepage: string;
+	release_date: string;
+	vote_average: number;
+	poster_path: string;
+}
+
+interface Config {
+	images: {
+		secure_base_url: string;
+	};
+}
+
+interface Search {
+	results: MovieInterface[];
+}
+
+const removeAdultFilms = (movie: MovieInterface) => {
 	if (
 		!movie.adult &&
 		!movie.title.includes("Porn") &&
@@ -10,11 +36,13 @@ const removeAdultFilms = (movie: object) => {
 		return movie;
 };
 
-export const getAllGenres = async (key: string) => {
+export const getAllGenres = async (
+	key: string
+): Promise<MovieInterface["genres"]> => {
 	const res = await fetch(
 		`https://api.themoviedb.org/3/genre/movie/list?api_key=${key}&language=en-US`
 	);
-	const resJSON = await res.json();
+	const resJSON = (await res.json()) as MovieInterface;
 
 	return resJSON.genres;
 };
@@ -24,9 +52,9 @@ const getGenre = async (id: number, key: string) => {
 		`https://api.themoviedb.org/3/genre/movie/list?api_key=${key}&language=en-US`
 	);
 
-	const resJSON = await res.json();
+	const resJSON = (await res.json()) as MovieInterface;
 
-	const data = await resJSON.genres.filter((genre) => genre.id === id)[0];
+	const data = resJSON.genres.filter((genre) => genre.id === id)[0];
 
 	return data && data.name;
 };
@@ -35,7 +63,7 @@ const configurationMovieDB = async (key: string) => {
 	const res = await fetch(
 		`https://api.themoviedb.org/3/configuration?api_key=${key}`
 	);
-	const resJSON = await res.json();
+	const resJSON = (await res.json()) as Config;
 
 	const url = resJSON.images.secure_base_url + "w500";
 
@@ -46,13 +74,13 @@ export const searchMovies = async (query: string, key: string) => {
 	const url = `https://api.themoviedb.org/3/search/movie?api_key=${key}&query=${query}`;
 
 	const res = await fetch(url);
-	const resJson = await res.json();
+	const resJson = (await res.json()) as Search;
 
 	const imgURL = await configurationMovieDB(key);
 
 	const data = resJson.results
-		.filter((movie) => removeAdultFilms(movie))
-		.map(async (movie) => {
+		.filter((movie: MovieInterface) => removeAdultFilms(movie))
+		.map(async (movie: MovieInterface) => {
 			const genre = await getGenre(movie.genre_ids[0], key);
 			return {
 				data: movie,
@@ -68,7 +96,7 @@ export const getMovie = async (id: string, key: string) => {
 	const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${key}`;
 
 	const res = await fetch(url);
-	const resJson = await res.json();
+	const resJson = (await res.json()) as MovieInterface;
 
 	const imgURL = await configurationMovieDB(key);
 
