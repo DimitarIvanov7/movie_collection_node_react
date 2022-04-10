@@ -7,9 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-// const dispatch = useDispatch();
-// const { setUser } = bindActionCreators(actionCreators, dispatch);
-// const userState = useSelector((state) => state.user);
 export const createUser = (username, password) => __awaiter(void 0, void 0, void 0, function* () {
     const res = yield fetch("/user", {
         method: "POST",
@@ -43,99 +40,17 @@ export const loginUser = (username, password) => __awaiter(void 0, void 0, void 
     const resJSON = yield res.json();
     return resJSON;
 });
-export const logoutUser = (accesToken, refreshToken) => __awaiter(void 0, void 0, void 0, function* () {
+export const logoutUser = (accesToken) => __awaiter(void 0, void 0, void 0, function* () {
     const res = yield fetch("/logout", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             authorization: "Bearer " + accesToken,
         },
-        body: JSON.stringify({ token: refreshToken }),
     });
     const resJSON = yield res.json();
     return resJSON;
 });
-// export const autoRefreshToken = (user, setUser) => {
-// 	const refreshToken = async () => {
-// 		try {
-// 			const res = await axios.post("/refresh", { token: user.refreshToken });
-// 			setUser({
-// 				...user,
-// 				accessToken: res.data.accessToken,
-// 				refreshToken: res.data.refreshToken,
-// 			});
-// 			return res.data;
-// 		} catch (err) {
-// 			console.log(err);
-// 		}
-// 	};
-// 	const axiosJWT = axios.create();
-// 	return axiosJWT.interceptors.request.use(
-// 		async (config) => {
-// 			let currentDate = new Date();
-// 			const decodedToken = jwt_decode(user.accessToken);
-// 			if (decodedToken.exp * 1000 < currentDate.getTime()) {
-// 				const data = await refreshToken();
-// 				config.headers["authorization"] = "Bearer " + data.accessToken;
-// 			}
-// 			return config;
-// 		},
-// 		(error) => {
-// 			return Promise.reject(error);
-// 		}
-// 	);
-// };
-// const refreshToken = async () => {
-// 	try {
-// 		const res = await axios.post("/refresh", { token: user.refreshToken });
-// 		setUser({
-// 			...user,
-// 			accessToken: res.data.accessToken,
-// 			refreshToken: res.data.refreshToken,
-// 		});
-// 		return res.data;
-// 	} catch (err) {
-// 		console.log(err);
-// 	}
-// };
-// const refreshToken = async () => {
-// 	try {
-// 		const res = await axios.post("/refresh", { token: userState.refreshToken });
-// 		setUser({
-// 			...userState,
-// 			accessToken: res.data.accessToken,
-// 			refreshToken: res.data.refreshToken,
-// 		});
-// 		return res.data;
-// 	} catch (err) {
-// 		console.log(err);
-// 	}
-// };
-// const axiosJWT = axios.create();
-// axiosJWT.interceptors.request.use(
-// 	async (config) => {
-// 		let currentDate = new Date();
-// 		const decodedToken = jwt_decode(userState.accessToken);
-// 		if (decodedToken.exp * 1000 < currentDate.getTime()) {
-// 			const data = await refreshToken();
-// 			config.headers["authorization"] = "Bearer " + data.accessToken;
-// 		}
-// 		return config;
-// 	},
-// 	(error) => {
-// 		return Promise.reject(error);
-// 	}
-// );
-// export const addFavourite2 = async (
-// 	id: number,
-// 	accesToken: string,
-// 	username: string
-// ) => {
-// 	const res = await axiosJWT.post("/favourite" + id, {
-// 		headers: { authorization: "Bearer " + accesToken },
-// 	});
-// 	return res;
-// };
 export const addFavourite = (id, accesToken, username) => __awaiter(void 0, void 0, void 0, function* () {
     const res = yield fetch(`/favourite`, {
         method: "POST",
@@ -146,7 +61,6 @@ export const addFavourite = (id, accesToken, username) => __awaiter(void 0, void
         body: JSON.stringify({ username: username, id: id }),
     });
     const resJSON = yield res.json();
-    // const res = await autoRefreshToken(user, setUser).delte
     return resJSON;
 });
 export const deleteFavourite = (id, accesToken, username) => __awaiter(void 0, void 0, void 0, function* () {
@@ -157,6 +71,43 @@ export const deleteFavourite = (id, accesToken, username) => __awaiter(void 0, v
             authorization: "Bearer " + accesToken,
         },
         body: JSON.stringify({ username: username }),
+    });
+    const resJSON = yield res.json();
+    return resJSON;
+});
+export const addComment = (movieId, accesToken, username, comment) => __awaiter(void 0, void 0, void 0, function* () {
+    const res = yield fetch(`/interested/comment/${movieId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            authorization: "Bearer " + accesToken,
+        },
+        body: JSON.stringify({ username: username, comment: comment }),
+    });
+    console.log(res);
+    const resJSON = yield res.json();
+    return resJSON;
+});
+export const deleteComment = (movieId, accesToken, username) => __awaiter(void 0, void 0, void 0, function* () {
+    const res = yield fetch(`/interested/comment/${movieId}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            authorization: "Bearer " + accesToken,
+        },
+        body: JSON.stringify({ username: username }),
+    });
+    const resJSON = yield res.json();
+    return resJSON;
+});
+export const addRating = (movieId, accesToken, username, rating) => __awaiter(void 0, void 0, void 0, function* () {
+    const res = yield fetch(`/interested/rate/${movieId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            authorization: "Bearer " + accesToken,
+        },
+        body: JSON.stringify({ username: username, rate: rating }),
     });
     const resJSON = yield res.json();
     return resJSON;

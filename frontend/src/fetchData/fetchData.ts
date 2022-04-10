@@ -6,9 +6,8 @@ export const searchMovies = async (query: string) => {
 	return resJSON;
 };
 
-export const getSingleMovie = async (id: string) => {
+export const getSingleMovie = async (id: number) => {
 	const res = await fetch(`/movies/${id}`);
-
 	const resJSON = await res.json();
 
 	return resJSON;

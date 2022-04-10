@@ -16,13 +16,12 @@ import cors from "cors";
 import User from "./models/users_mod.js";
 import bcrypt from "bcrypt";
 import pkg from "jsonwebtoken";
-const { Secret, decode, verify, sign } = pkg;
+const { verify, sign } = pkg;
 import { searchMovies, getMovie, getAllGenres, } from "./getMovieData/searchMovies.js";
 const app = express();
 const port = process.env.PORT;
 const mongoURI = process.env.MONGODB_URI;
 const movieAPI = process.env.MOVIEDB_KEY;
-const secretRefreshKey = process.env.REFRESH_TOKEN_SECRET;
 const secretAccessKey = process.env.ACCESS_TOKEN_SECRET;
 app.use(express.json());
 app.use(morgan("dev"));
@@ -36,49 +35,31 @@ mongoURI &&
         app.listen(port);
     })
         .catch((err) => console.log(err));
-const users = [
-    {
-        id: "1",
-        username: "john",
-        password: "John0908",
-    },
-    {
-        id: "2",
-        username: "jane",
-        password: "Jane0908",
-    },
-];
-let refreshTokens = [];
-app.post("/api/refresh", (req, res) => {
-    //take the refresh token from the user
-    const refreshToken = req.body.token;
-    //send error if there is no token or it's invalid
-    if (!refreshToken)
-        return res.status(401).json("You are not authenticated!");
-    if (!refreshTokens.includes(refreshToken)) {
-        return res.status(403).json("Refresh token is not valid!");
-    }
-    verify(refreshToken, secretRefreshKey, (err, user) => {
-        err && console.log(err);
-        refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
-        const newAccessToken = generateAccessToken(user);
-        const newRefreshToken = generateRefreshToken(user);
-        refreshTokens.push(newRefreshToken);
-        res.status(200).json({
-            accessToken: newAccessToken,
-            refreshToken: newRefreshToken,
-        });
-    });
-    //if everything is ok, create new access token, refresh token and send to user
-});
+//authentication and authorization
 const generateAccessToken = (user) => {
     return sign({ id: user.id }, secretAccessKey, {
-        expiresIn: "15m",
+        expiresIn: "20m",
     });
 };
-const generateRefreshToken = (user) => {
-    return sign({ id: user.id }, secretRefreshKey);
-};
+app.post("/api/user", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const salt = yield bcrypt.genSalt();
+    const hashedPass = yield bcrypt.hash(req.body.password, salt);
+    const username = req.body.name;
+    const exists = yield User.findOne({ name: username });
+    if (exists) {
+        res.send("User already exists");
+        return;
+    }
+    const user = new User({
+        name: req.body.name,
+        password: hashedPass,
+        favourite: [],
+        interested: [],
+    });
+    user.save().then(() => {
+        res.send("Successfully created");
+    });
+}));
 app.post("/api/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const username = req.body.username;
     const validName = yield User.findOne({ name: username });
@@ -90,13 +71,11 @@ app.post("/api/login", (req, res) => __awaiter(void 0, void 0, void 0, function*
     if (validPass) {
         //Generate an access token
         const accessToken = generateAccessToken(validPass);
-        const refreshToken = generateRefreshToken(validPass);
-        refreshTokens.push(refreshToken);
         res.json({
             username: username,
             accessToken,
-            refreshToken,
             favourite: validName.favourite,
+            interested: validName.interested,
         });
     }
     else {
@@ -119,68 +98,112 @@ const verifyUser = (req, res, next) => {
         res.status(401).json("You are not authenticated!");
     }
 };
-app.get("/api/users/:username", verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield User.findOne({ name: req.params.username });
-    if (user)
-        res.json(user);
-    else
-        res.json("error");
-}));
-app.delete("/api/users/:userId", verifyUser, (req, res) => {
-    if (req.user.id === req.params.userId) {
-        res.status(200).json("User has been deleted.");
-    }
-    else {
-        res.status(403).json("You are not allowed to delete this user!");
-    }
-});
 app.post("/api/logout", verifyUser, (req, res) => {
-    const refreshToken = req.body.token;
-    refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
     res.status(200).json("You logged out successfully.");
 });
 app.post("/api/favourite", verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const movieId = req.body.id;
+    const movieId = parseInt(req.body.id);
     const username = req.body.username;
+    console.log(movieId);
     yield User.findOneAndUpdate({ name: username }, {
         $push: {
-            favourite: {
-                id: movieId,
-                rating: 0,
-                comments: [],
-            },
+            favourite: [movieId],
         },
     });
     const updatedUser = yield User.findOne({ name: username });
+    console.log(updatedUser.favourite);
     res.json(updatedUser.favourite);
 }));
 app.delete("/api/favourite/:id", verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const movieId = req.params.id;
+    const movieId = parseInt(req.params.id);
     const username = req.body.username;
     yield User.updateMany({ name: username }, {
         $pull: {
-            favourite: {
-                id: parseInt(movieId),
-            },
+            favourite: movieId,
         },
     });
     const updatedUser = yield User.findOne({ name: username });
     res.json(updatedUser.favourite);
 }));
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+const addIntrestedComment = (username, movieId, comment) => __awaiter(void 0, void 0, void 0, function* () {
+    yield User.findOneAndUpdate({ name: username }, {
+        $push: {
+            interested: {
+                id: movieId,
+                rating: 0,
+                comment: comment,
+            },
+        },
+    });
+});
+app.post("/api/interested/comment/:movieId", verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const movieId = parseInt(req.params.movieId);
+    const username = req.body.username;
+    const comment = req.body.comment;
+    const checkInterested = yield User.findOne({
+        name: username,
+        "interested.id": movieId,
+    });
+    if (!checkInterested) {
+        yield addIntrestedComment(username, movieId, comment);
+    }
+    else {
+        const userInfo = yield User.findOne({ name: username });
+        const prevComment = userInfo.interested &&
+            userInfo.interested.filter((movie) => movie.id === movieId)[0].comment;
+        yield User.findOneAndUpdate({ name: username, "interested.id": movieId }, {
+            $set: {
+                "interested.$.comment": `${prevComment + " \n" + comment}`,
+            },
+        });
+    }
+    const updatedUser = yield User.findOne({ name: username });
+    res.json(updatedUser.interested);
+}));
+app.delete("/api/interested/comment/:movieId", verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const movieId = parseInt(req.params.movieId);
+    const username = req.body.username;
+    yield User.findOneAndUpdate({ name: username, "interested.id": movieId }, {
+        $set: {
+            "interested.$.comment": "",
+        },
+    });
+    const updatedUser = yield User.findOne({ name: username });
+    res.json(updatedUser.interested);
+}));
+const addIntrestedRate = (username, movieId, rate) => __awaiter(void 0, void 0, void 0, function* () {
+    yield User.findOneAndUpdate({ name: username }, {
+        $push: {
+            interested: {
+                id: movieId,
+                rating: rate,
+                comment: "",
+            },
+        },
+    });
+});
+app.post("/api/interested/rate/:movieId", verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const movieId = parseInt(req.params.movieId);
+    const username = req.body.username;
+    const rate = parseInt(req.body.rate);
+    const checkInterested = yield User.findOne({
+        name: username,
+        "interested.id": movieId,
+    });
+    console.log(checkInterested);
+    if (!checkInterested) {
+        yield addIntrestedRate(username, movieId, rate);
+    }
+    else {
+        yield User.findOneAndUpdate({ name: username, "interested.id": movieId }, {
+            $set: {
+                "interested.$.rating": rate,
+            },
+        });
+    }
+    const updatedUser = yield User.findOne({ name: username });
+    res.json(updatedUser.interested);
+}));
 app.get("/api/search/:title", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const param = req.params.title;
     const moviesJSON = movieAPI && (yield searchMovies(param, movieAPI));
@@ -195,22 +218,4 @@ app.get("/api/genres/", (req, res) => __awaiter(void 0, void 0, void 0, function
     const categorieJSON = movieAPI && (yield getAllGenres(movieAPI));
     res.send(categorieJSON);
 }));
-app.post("/api/user", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const salt = yield bcrypt.genSalt();
-    const hashedPass = yield bcrypt.hash(req.body.password, salt);
-    const username = req.body.name;
-    const exists = yield User.findOne({ name: username });
-    if (exists) {
-        res.send("User already exists");
-        return;
-    }
-    const user = new User({
-        name: req.body.name,
-        password: hashedPass,
-    });
-    user.save().then(() => {
-        res.send("Successfully created");
-    });
-}));
-//
 //# sourceMappingURL=app.js.map

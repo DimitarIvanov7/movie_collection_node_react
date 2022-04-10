@@ -10,10 +10,20 @@ const userSchema = new Schema({
 		type: String,
 		required: true,
 	},
-	favourite: {
-		type: [Schema.Types.Mixed],
-		required: false,
-	},
+	favourite: [Number],
+	interested: [
+		{
+			id: {
+				type: Number,
+			},
+			rating: {
+				type: Number,
+			},
+			comment: {
+				type: String,
+			},
+		},
+	],
 });
 
 const User = mongoose.model("user", userSchema);

@@ -14,9 +14,11 @@ const SpecificMovie = ({ movie }) => {
 	const [isFavourite, setIsFavourite] = useState(false);
 
 	useEffect(() => {
-		const favList = userState && userState.favourite.map((fav) => fav.id);
+		const favList = userState && userState.favourite.map((fav: number) => fav);
 
-		userState && setIsFavourite(favList.includes(parseInt(movie.data.id)));
+		userState
+			? setIsFavourite(favList.includes(parseInt(movie.data.id)))
+			: setIsFavourite(false);
 	}, [userState]);
 
 	const dispatch = useDispatch();
@@ -35,7 +37,13 @@ const SpecificMovie = ({ movie }) => {
 				? await addFavourite(id, userState.accessToken, userState.username)
 				: await deleteFavourite(id, userState.accessToken, userState.username);
 
-		let updatedUser = { ...userState };
+		if (res === "Token is not valid!") {
+			window.location.reload();
+			alert("Your token has expired");
+			return;
+		}
+
+		const updatedUser = { ...userState };
 
 		updatedUser.favourite = res;
 

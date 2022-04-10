@@ -20,13 +20,19 @@ const Login = () => {
     const { LoginOpen, setUser } = bindActionCreators(actionCreators, dispatch);
     const handleNewUser = (e) => __awaiter(void 0, void 0, void 0, function* () {
         e.preventDefault();
-        // console.log(e.target.username.value);
         const res = yield createUser(e.target.username.value, e.target.password.value);
-        console.log(res);
+        alert(res);
+        if (res == "Successfully created") {
+            setCreateAccount(false);
+        }
     });
     const handleLogin = (e) => __awaiter(void 0, void 0, void 0, function* () {
         e.preventDefault();
         const res = yield loginUser(e.target.username.value, e.target.password.value);
+        if (res === "Wrong username" || res === "Wrong password!") {
+            alert(res);
+            return;
+        }
         setUser(res);
         LoginOpen(false);
     });

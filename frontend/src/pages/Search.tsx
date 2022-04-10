@@ -8,20 +8,21 @@ import SpecificMovie from "../components/SpecificMovie";
 import { useSelector, useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
 import { actionCreators } from "../state/index";
+import { State, genreInterface } from "../interfaces/main.interface";
 
 const Search = () => {
 	const { search } = useLocation();
 
 	const q = search.substring(3);
 
-	const [results, setResults] = useState([]);
+	const [results, setResults] = useState<State["search"]>([]);
 	const [genres, setGenres] = useState([]);
 
 	//redux
 	const dispatch = useDispatch();
 	const { initialState } = bindActionCreators(actionCreators, dispatch);
 
-	const searchState = useSelector((state) => state.search);
+	const searchState = useSelector((state: State) => state.search);
 
 	useEffect(() => {
 		getSearchResults();
@@ -29,7 +30,7 @@ const Search = () => {
 	}, [q]);
 
 	useEffect(() => {
-		setResults(searchState.length > 0 && searchState);
+		searchState.length > 0 && setResults(searchState);
 	}, [searchState]);
 
 	const getSearchResults = async () => {

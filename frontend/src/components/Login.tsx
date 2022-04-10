@@ -16,14 +16,16 @@ const Login = () => {
 
 	const handleNewUser = async (e) => {
 		e.preventDefault();
-		// console.log(e.target.username.value);
 
 		const res = await createUser(
 			e.target.username.value,
 			e.target.password.value
 		);
+		alert(res);
 
-		console.log(res);
+		if (res == "Successfully created") {
+			setCreateAccount(false);
+		}
 	};
 
 	const handleLogin = async (e) => {
@@ -33,6 +35,11 @@ const Login = () => {
 			e.target.username.value,
 			e.target.password.value
 		);
+
+		if (res === "Wrong username" || res === "Wrong password!") {
+			alert(res);
+			return;
+		}
 
 		setUser(res);
 

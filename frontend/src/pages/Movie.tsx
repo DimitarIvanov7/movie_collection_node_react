@@ -4,43 +4,60 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getSingleMovie } from "../fetchData/fetchData";
 import StarRatings from "react-star-ratings";
-import { addFavourite, deleteFavourite } from "../fetchData/Auth";
+import {
+	addFavourite,
+	deleteFavourite,
+	addComment,
+	addRating,
+	deleteComment,
+} from "../fetchData/Auth";
 
 import { useSelector, useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
 import { actionCreators } from "../state/index";
 
+import {
+	MovieInterface,
+	State,
+	genreInterface,
+} from "../interfaces/main.interface";
+
 const Movie = () => {
 	const { id } = useParams();
 
-	const [movie, setMovie] = useState();
+	const [movie, setMovie] = useState<MovieInterface>();
+
+	const [rating, setRating] = useState<number>(0);
 
 	const getMovieData = async () => {
-		const res = id && (await getSingleMovie(id));
+		const res = id && (await getSingleMovie(parseInt(id)));
 		setMovie(res);
 	};
 
-	const getGenres = (genre) => {
+	const getGenres = (genre: genreInterface) => {
 		return <p>{genre.name}</p>;
 	};
 
-	const [rating, setRating] = useState(0);
-
-	const handleRating = (rate: number) => {
-		setRating(rate);
-	};
-
-	const userState = useSelector((state) => state.user);
+	const userState = useSelector((state: State) => state.user);
 
 	const [isFavourite, setIsFavourite] = useState(false);
+
+	const interest =
+		userState.interested &&
+		userState.interested.filter((movie) => movie.id === parseInt(id))[0];
+
 	useEffect(() => {
 		getMovieData();
 
 		!userState && setIsFavourite(false);
 
-		const favList = userState && userState.favourite.map((fav) => fav.id);
+		const favList = userState && userState.favourite.map((fav: number) => fav);
 
-		userState && setIsFavourite(favList.includes(parseInt(id)));
+		userState
+			? id && setIsFavourite(favList.includes(parseInt(id)))
+			: id && setIsFavourite(false);
+
+		userState ? setRating(interest ? interest.rating : 0) : setRating(0);
 	}, [id, userState]);
 
 	const dispatch = useDispatch();
@@ -52,7 +69,7 @@ const Movie = () => {
 			return;
 		}
 
-		const movieId = movie.data.id;
+		const movieId = movie && movie.data.id;
 		const res =
 			type === "add"
 				? await addFavourite(movieId, userState.accessToken, userState.username)
@@ -62,9 +79,105 @@ const Movie = () => {
 						userState.username
 				  );
 
-		let updatedUser = { ...userState };
+		if (res === "Token is not valid!") {
+			window.location.reload();
+			alert("Your token has expired");
+			return;
+		}
+
+		const updatedUser = { ...userState };
 
 		updatedUser.favourite = res;
+
+		setUser(updatedUser);
+	};
+
+	const handleAddComments = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		if (!userState) {
+			alert("You need to login first!");
+			return;
+		}
+		const text = e.target.comment.value;
+
+		const res =
+			id &&
+			(await addComment(
+				parseInt(id),
+				userState.accessToken,
+				userState.username,
+				text
+			));
+
+		if (res === "Token is not valid!") {
+			window.location.reload();
+			alert("Your token has expired");
+			return;
+		}
+
+		const updatedUser = { ...userState };
+
+		updatedUser.interested = res;
+
+		setUser(updatedUser);
+
+		Array.from(document.querySelectorAll("input")).forEach(
+			(input) => (input.value = "")
+		);
+	};
+
+	const handeDeleteComment = async () => {
+		const res =
+			id &&
+			(await deleteComment(
+				parseInt(id),
+				userState.accessToken,
+				userState.username
+			));
+
+		if (res === "Token is not valid!") {
+			window.location.reload();
+			alert("Your token has expired");
+			return;
+		}
+
+		const updatedUser = { ...userState };
+
+		updatedUser.interested = res;
+
+		setUser(updatedUser);
+	};
+
+	const displayComments = () => {
+		const comment = interest ? interest.comment : "";
+
+		return comment;
+	};
+
+	const handleRating = async (rate: number) => {
+		if (!userState) {
+			alert("You need to login first!");
+			return;
+		}
+
+		const res =
+			id &&
+			(await addRating(
+				parseInt(id),
+				userState.accessToken,
+				userState.username,
+				rate
+			));
+
+		if (res === "Token is not valid!") {
+			window.location.reload();
+			alert("Your token has expired");
+			return;
+		}
+
+		const updatedUser = { ...userState };
+
+		updatedUser.interested = res;
 
 		setUser(updatedUser);
 	};
@@ -115,7 +228,23 @@ const Movie = () => {
 						/>
 
 						<section className="comment-section">
-							<p className="coments">comment</p>
+							{userState && <p>{displayComments()}</p>}
+							<form action="/" onSubmit={(e) => handleAddComments(e)}>
+								<input
+									name="comment"
+									type="text"
+									placeholder="Add comment"
+									required
+								/>
+
+								<button type="submit">Submit comment</button>
+							</form>
+							<button
+								onClick={handeDeleteComment}
+								disabled={interest && interest.comment.length === 0}
+							>
+								Delete comment
+							</button>
 						</section>
 					</div>
 				</div>

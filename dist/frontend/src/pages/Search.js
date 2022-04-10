@@ -30,7 +30,7 @@ const Search = () => {
         getGenres();
     }, [q]);
     useEffect(() => {
-        setResults(searchState.length > 0 && searchState);
+        searchState.length > 0 && setResults(searchState);
     }, [searchState]);
     const getSearchResults = () => __awaiter(void 0, void 0, void 0, function* () {
         const res = yield searchMovies(q);

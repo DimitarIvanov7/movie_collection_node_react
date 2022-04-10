@@ -1,15 +1,3 @@
-import axios from "axios";
-import jwt_decode from "jwt-decode";
-
-import { useDispatch, useSelector } from "react-redux";
-import { bindActionCreators } from "redux";
-import { actionCreators } from "../state/index";
-
-// const dispatch = useDispatch();
-// const { setUser } = bindActionCreators(actionCreators, dispatch);
-
-// const userState = useSelector((state) => state.user);
-
 export const createUser = async (username: string, password: string) => {
 	const res = await fetch("/user", {
 		method: "POST",
@@ -52,110 +40,19 @@ export const loginUser = async (username: string, password: string) => {
 	return resJSON;
 };
 
-export const logoutUser = async (accesToken: string, refreshToken: string) => {
+export const logoutUser = async (accesToken: string) => {
 	const res = await fetch("/logout", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 			authorization: "Bearer " + accesToken,
 		},
-		body: JSON.stringify({ token: refreshToken }),
 	});
 
 	const resJSON = await res.json();
 
 	return resJSON;
 };
-
-// export const autoRefreshToken = (user, setUser) => {
-// 	const refreshToken = async () => {
-// 		try {
-// 			const res = await axios.post("/refresh", { token: user.refreshToken });
-// 			setUser({
-// 				...user,
-// 				accessToken: res.data.accessToken,
-// 				refreshToken: res.data.refreshToken,
-// 			});
-// 			return res.data;
-// 		} catch (err) {
-// 			console.log(err);
-// 		}
-// 	};
-
-// 	const axiosJWT = axios.create();
-
-// 	return axiosJWT.interceptors.request.use(
-// 		async (config) => {
-// 			let currentDate = new Date();
-// 			const decodedToken = jwt_decode(user.accessToken);
-// 			if (decodedToken.exp * 1000 < currentDate.getTime()) {
-// 				const data = await refreshToken();
-// 				config.headers["authorization"] = "Bearer " + data.accessToken;
-// 			}
-// 			return config;
-// 		},
-// 		(error) => {
-// 			return Promise.reject(error);
-// 		}
-// 	);
-// };
-
-// const refreshToken = async () => {
-// 	try {
-// 		const res = await axios.post("/refresh", { token: user.refreshToken });
-// 		setUser({
-// 			...user,
-// 			accessToken: res.data.accessToken,
-// 			refreshToken: res.data.refreshToken,
-// 		});
-// 		return res.data;
-// 	} catch (err) {
-// 		console.log(err);
-// 	}
-// };
-
-// const refreshToken = async () => {
-// 	try {
-// 		const res = await axios.post("/refresh", { token: userState.refreshToken });
-// 		setUser({
-// 			...userState,
-// 			accessToken: res.data.accessToken,
-// 			refreshToken: res.data.refreshToken,
-// 		});
-// 		return res.data;
-// 	} catch (err) {
-// 		console.log(err);
-// 	}
-// };
-
-// const axiosJWT = axios.create();
-
-// axiosJWT.interceptors.request.use(
-// 	async (config) => {
-// 		let currentDate = new Date();
-// 		const decodedToken = jwt_decode(userState.accessToken);
-// 		if (decodedToken.exp * 1000 < currentDate.getTime()) {
-// 			const data = await refreshToken();
-// 			config.headers["authorization"] = "Bearer " + data.accessToken;
-// 		}
-// 		return config;
-// 	},
-// 	(error) => {
-// 		return Promise.reject(error);
-// 	}
-// );
-
-// export const addFavourite2 = async (
-// 	id: number,
-// 	accesToken: string,
-// 	username: string
-// ) => {
-// 	const res = await axiosJWT.post("/favourite" + id, {
-// 		headers: { authorization: "Bearer " + accesToken },
-// 	});
-
-// 	return res;
-// };
 
 export const addFavourite = async (
 	id: number,
@@ -173,8 +70,6 @@ export const addFavourite = async (
 
 	const resJSON = await res.json();
 
-	// const res = await autoRefreshToken(user, setUser).delte
-
 	return resJSON;
 };
 
@@ -190,6 +85,67 @@ export const deleteFavourite = async (
 			authorization: "Bearer " + accesToken,
 		},
 		body: JSON.stringify({ username: username }),
+	});
+
+	const resJSON = await res.json();
+
+	return resJSON;
+};
+
+export const addComment = async (
+	movieId: number,
+	accesToken: string,
+	username: string,
+	comment: string
+) => {
+	const res = await fetch(`/interested/comment/${movieId}`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			authorization: "Bearer " + accesToken,
+		},
+		body: JSON.stringify({ username: username, comment: comment }),
+	});
+
+	console.log(res);
+
+	const resJSON = await res.json();
+
+	return resJSON;
+};
+
+export const deleteComment = async (
+	movieId: number,
+	accesToken: string,
+	username: string
+) => {
+	const res = await fetch(`/interested/comment/${movieId}`, {
+		method: "DELETE",
+		headers: {
+			"Content-Type": "application/json",
+			authorization: "Bearer " + accesToken,
+		},
+		body: JSON.stringify({ username: username }),
+	});
+
+	const resJSON = await res.json();
+
+	return resJSON;
+};
+
+export const addRating = async (
+	movieId: number,
+	accesToken: string,
+	username: string,
+	rating: number
+) => {
+	const res = await fetch(`/interested/rate/${movieId}`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			authorization: "Bearer " + accesToken,
+		},
+		body: JSON.stringify({ username: username, rate: rating }),
 	});
 
 	const resJSON = await res.json();
