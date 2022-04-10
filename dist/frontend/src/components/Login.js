@@ -43,7 +43,7 @@ const Login = () => {
 
 					<div className="wrapper">
 						<form action="/" onSubmit={handleLogin}>
-							<input type="text" name="username" placeholder="username" required/>
+							<input className="username-input" type="text" name="username" placeholder="username" required/>
 							<input type="password" name="password" placeholder="password" required/>
 							<button type="submit">Login</button>
 						</form>

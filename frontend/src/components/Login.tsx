@@ -56,6 +56,7 @@ const Login = () => {
 					<div className="wrapper">
 						<form action="/" onSubmit={handleLogin}>
 							<input
+								className="username-input"
 								type="text"
 								name="username"
 								placeholder="username"
