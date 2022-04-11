@@ -46,15 +46,39 @@ const Login = () => {
 		LoginOpen(false);
 	};
 
+	const loginClases = {
+		buttonLog: "text-white rounded px-4 border border-white",
+
+		heading: "text-lg font-bold m-2 text-white",
+
+		wrapper: "wrapper m-2",
+
+		form: "flex gap-2 mb-2",
+
+		text: "text-white",
+
+		bold: "font-bold cursor-pointer",
+
+		button: "text-white rounded px-4 border border-white",
+	};
+
 	return (
-		<div className="container">
-			<AiFillCloseCircle onClick={() => LoginOpen(false)} />
+		<div className=" flex flex-col w-screen bg-mainBg">
+			<AiFillCloseCircle
+				style={{ color: "white" }}
+				className="right-0 m-2 absolute cursor-pointer"
+				onClick={() => LoginOpen(false)}
+			/>
 			{!createAccount ? (
 				<>
-					<h2>Login to your Account</h2>
+					<h2 className={loginClases.heading}>Login to your Account</h2>
 
-					<div className="wrapper">
-						<form action="/" onSubmit={handleLogin}>
+					<div className={loginClases.wrapper}>
+						<form
+							className={loginClases.form}
+							action="/"
+							onSubmit={handleLogin}
+						>
 							<input
 								className="username-input"
 								type="text"
@@ -68,21 +92,32 @@ const Login = () => {
 								placeholder="password"
 								required
 							/>
-							<button type="submit">Login</button>
+							<button className={loginClases.button} type="submit">
+								Login
+							</button>
 						</form>
 
-						<p>
+						<p className={loginClases.text}>
 							Don't have an account?{" "}
-							<span onClick={() => setCreateAccount(true)}>Create account</span>
+							<span
+								className={loginClases.bold}
+								onClick={() => setCreateAccount(true)}
+							>
+								Create account
+							</span>
 						</p>
 					</div>
 				</>
 			) : (
 				<>
 					{" "}
-					<h2>Create Account</h2>
-					<div className="wrapper">
-						<form action="/" onSubmit={handleNewUser}>
+					<h2 className={loginClases.heading}>Create Account</h2>
+					<div className={loginClases.wrapper}>
+						<form
+							className={loginClases.form}
+							action="/"
+							onSubmit={handleNewUser}
+						>
 							<input
 								type="text"
 								name="username"
@@ -96,12 +131,19 @@ const Login = () => {
 								required
 							/>
 
-							<button type="submit">Create Account</button>
+							<button className={loginClases.button} type="submit">
+								Create Account
+							</button>
 						</form>
 
-						<p>
+						<p className={loginClases.text}>
 							Already have account?{" "}
-							<span onClick={() => setCreateAccount(false)}>Login</span>
+							<span
+								className={loginClases.bold}
+								onClick={() => setCreateAccount(false)}
+							>
+								Login
+							</span>
 						</p>
 					</div>
 				</>

@@ -15,7 +15,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { bindActionCreators } from "redux";
 import { actionCreators } from "../state/index";
 import { logoutUser } from "../fetchData/Auth";
-const Header = () => {
+import { useState } from "react";
+const Header = ({ searchRef }) => {
+    const [isSearchFocus, setIsSearchFocus] = useState(false);
+    const onFocus = () => setIsSearchFocus(true);
+    const onBlur = () => setIsSearchFocus(false);
     const location = useLocation();
     const navigate = useNavigate();
     const handleSearch = (e) => {
@@ -45,8 +49,11 @@ const Header = () => {
 			</Link>
 			<div className="form-container flex gap-x-1.5">
 				<form onSubmit={(e) => handleSearch(e)} className="flex gap-x-1.5">
-					<input type="text" name="movie" className="bg-gray appearance-none border-2 border-gray rounded w-full py-2 px-4 text-gray leading-tight focus:outline-none focus:bg-white focus:border-gray" placeholder="Search by movie title... " required/>
-					<button type="submit" className={classes.button}>
+					<input ref={searchRef} onFocus={onFocus} onBlur={onBlur} style={{
+            boxShadow: isSearchFocus ? "0 0 0 9999px #000000b0" : "none",
+            zIndex: 99,
+        }} type="text" name="movie" className="bg-gray appearance-none border-2 border-gray rounded w-full py-2 px-4 text-gray leading-tight focus:outline-none focus:bg-white focus:border-gray" placeholder="Search by movie title... " required/>
+					<button style={{ zIndex: 100 }} type="submit" className={classes.button}>
 						Search
 					</button>
 				</form>

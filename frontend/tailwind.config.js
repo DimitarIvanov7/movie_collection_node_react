@@ -26,7 +26,7 @@ module.exports = {
 		},
 		extend: {
 			boxShadow: {
-				DEFAULT: "inset 0 0 0 1000px rgb(192 192 192 / 35%)",
+				DEFAULT: "inset 0 0 0 1000px rgb(59 54 45/ 55%)",
 			},
 			fontSize: {
 				"2rem": "2rem",
