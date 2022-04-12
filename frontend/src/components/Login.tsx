@@ -114,7 +114,6 @@ const Login = () => {
 				</>
 			) : (
 				<>
-					{" "}
 					<h2 className={loginClases.heading}>Create Account</h2>
 					<div className={loginClases.wrapper}>
 						<form

@@ -37,7 +37,9 @@ const Search = () => {
 	}, [q]);
 
 	useEffect(() => {
-		searchState && searchState.length > 0 && setResults(searchState);
+		searchState && searchState.length > 0
+			? setResults(searchState)
+			: setResults([]);
 	}, [searchState]);
 
 	const getSearchResults = async () => {
@@ -159,10 +161,13 @@ const Search = () => {
 						Results
 					</h2>
 					<div className="results-wrapper flex flex-col gap-6">
-						{results &&
+						{results && results.length > 0 ? (
 							results.map((result) => (
 								<SpecificMovie key={uuidv4()} movie={result} />
-							))}
+							))
+						) : (
+							<p>No data by this criteria</p>
+						)}
 					</div>
 				</div>
 			</section>

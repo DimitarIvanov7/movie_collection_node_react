@@ -55,7 +55,7 @@ const SpecificMovie = ({ movie, type }: State) => {
 		setUser(updatedUser);
 	};
 
-	const LinkElement = useRef(null);
+	const LinkElement = useRef<HTMLAnchorElement>(null);
 
 	return (
 		<div

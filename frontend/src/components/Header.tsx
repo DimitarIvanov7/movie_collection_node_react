@@ -29,6 +29,8 @@ const Header = ({ searchRef }: HeaderProps) => {
 
 		const path = `/search?q=${e.target.movie.value}`;
 		navigate(path);
+
+		onBlur();
 	};
 
 	const dispatch = useDispatch();

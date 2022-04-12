@@ -14,6 +14,8 @@ import {
 	getAllGenres,
 } from "./getMovieData/searchMovies.js";
 
+import { registerValidation } from "./validation/requestValidation.js";
+
 const app = express();
 const port = process.env.PORT;
 const mongoURI = process.env.MONGODB_URI;
@@ -44,16 +46,22 @@ const generateAccessToken = (user: { name: string }) => {
 	return (
 		secretAccessKey &&
 		sign({ name: user.name }, secretAccessKey, {
-			expiresIn: "20m",
+			expiresIn: "40m",
 		})
 	);
 };
 
 app.post("/api/user", async (req, res) => {
-	const salt = await bcrypt.genSalt();
-	const hashedPass = await bcrypt.hash(req.body.password, salt);
+	const { error } = registerValidation(req.body);
 
+	if (error) {
+		return res.status(400).send(error.details[0].message);
+	}
 	const username = req.body.name;
+	const password = req.body.password;
+
+	const salt = await bcrypt.genSalt();
+	const hashedPass = await bcrypt.hash(password, salt);
 
 	const exists = await User.findOne({ name: username });
 
@@ -63,7 +71,7 @@ app.post("/api/user", async (req, res) => {
 	}
 
 	const user = new User({
-		name: req.body.name,
+		name: username,
 		password: hashedPass,
 		favourite: [],
 		interested: [],
@@ -178,8 +186,8 @@ const addIntrestedComment = async (
 	);
 };
 
-app.post("/api/interested/comment/:movieId", verifyUser, async (req, res) => {
-	const movieId = parseInt(req.params.movieId);
+app.post("/api/interested/comment", verifyUser, async (req, res) => {
+	const movieId = parseInt(req.body.movieId);
 	const username = req.body.username;
 	const comment = req.body.comment;
 
@@ -251,8 +259,8 @@ const addIntrestedRate = async (
 	);
 };
 
-app.post("/api/interested/rate/:movieId", verifyUser, async (req, res) => {
-	const movieId = parseInt(req.params.movieId);
+app.post("/api/interested/rate", verifyUser, async (req, res) => {
+	const movieId = parseInt(req.body.movieId);
 	const username = req.body.username;
 	const rate = parseInt(req.body.rate);
 

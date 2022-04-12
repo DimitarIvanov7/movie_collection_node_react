@@ -12,20 +12,6 @@ export const createUser = async (username: string, password: string) => {
 	return resJSON;
 };
 
-export const getUser = async (username: string, accesToken: string) => {
-	const res = await fetch(`/users/${username}`, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-			authorization: "Bearer " + accesToken,
-		},
-	});
-
-	const resJSON = await res.json();
-
-	return resJSON;
-};
-
 export const loginUser = async (username: string, password: string) => {
 	const res = await fetch("/login", {
 		method: "POST",
@@ -98,13 +84,17 @@ export const addComment = async (
 	username: string,
 	comment: string
 ) => {
-	const res = await fetch(`/interested/comment/${movieId}`, {
+	const res = await fetch(`/interested/comment`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 			authorization: "Bearer " + accesToken,
 		},
-		body: JSON.stringify({ username: username, comment: comment }),
+		body: JSON.stringify({
+			username: username,
+			comment: comment,
+			movieId: movieId,
+		}),
 	});
 
 	const resJSON = await res.json();
@@ -137,16 +127,34 @@ export const addRating = async (
 	username: string,
 	rating: number
 ) => {
-	const res = await fetch(`/interested/rate/${movieId}`, {
+	const res = await fetch(`/interested/rate`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 			authorization: "Bearer " + accesToken,
 		},
-		body: JSON.stringify({ username: username, rate: rating }),
+		body: JSON.stringify({
+			username: username,
+			rate: rating,
+			movieId: movieId,
+		}),
 	});
 
 	const resJSON = await res.json();
 
 	return resJSON;
 };
+
+// export const getUser = async (username: string, accesToken: string) => {
+// 	const res = await fetch(`/users/${username}`, {
+// 		method: "GET",
+// 		headers: {
+// 			"Content-Type": "application/json",
+// 			authorization: "Bearer " + accesToken,
+// 		},
+// 	});
+
+// 	const resJSON = await res.json();
+
+// 	return resJSON;
+// };

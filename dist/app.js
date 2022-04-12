@@ -18,6 +18,7 @@ import bcrypt from "bcrypt";
 import pkg from "jsonwebtoken";
 const { verify, sign } = pkg;
 import { searchMovies, getMovie, getAllGenres, } from "./getMovieData/searchMovies.js";
+import { registerValidation } from "./validation/requestValidation.js";
 const app = express();
 const port = process.env.PORT;
 const mongoURI = process.env.MONGODB_URI;
@@ -39,20 +40,25 @@ mongoURI &&
 const generateAccessToken = (user) => {
     return (secretAccessKey &&
         sign({ name: user.name }, secretAccessKey, {
-            expiresIn: "20m",
+            expiresIn: "40m",
         }));
 };
 app.post("/api/user", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const salt = yield bcrypt.genSalt();
-    const hashedPass = yield bcrypt.hash(req.body.password, salt);
+    const { error } = registerValidation(req.body);
+    if (error) {
+        return res.status(400).send(error.details[0].message);
+    }
     const username = req.body.name;
+    const password = req.body.password;
+    const salt = yield bcrypt.genSalt();
+    const hashedPass = yield bcrypt.hash(password, salt);
     const exists = yield User.findOne({ name: username });
     if (exists) {
         res.send("User already exists");
         return;
     }
     const user = new User({
-        name: req.body.name,
+        name: username,
         password: hashedPass,
         favourite: [],
         interested: [],
@@ -136,8 +142,8 @@ const addIntrestedComment = (username, movieId, comment) => __awaiter(void 0, vo
         },
     });
 });
-app.post("/api/interested/comment/:movieId", verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const movieId = parseInt(req.params.movieId);
+app.post("/api/interested/comment", verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const movieId = parseInt(req.body.movieId);
     const username = req.body.username;
     const comment = req.body.comment;
     const checkInterested = yield User.findOne({
@@ -182,8 +188,8 @@ const addIntrestedRate = (username, movieId, rate) => __awaiter(void 0, void 0, 
         },
     });
 });
-app.post("/api/interested/rate/:movieId", verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const movieId = parseInt(req.params.movieId);
+app.post("/api/interested/rate", verifyUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const movieId = parseInt(req.body.movieId);
     const username = req.body.username;
     const rate = parseInt(req.body.rate);
     const checkInterested = yield User.findOne({
