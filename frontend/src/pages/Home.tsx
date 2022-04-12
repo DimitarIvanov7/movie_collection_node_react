@@ -25,11 +25,9 @@ const Home = () => {
 			(favList.map(async (fav: number) => {
 				const res = await getSingleMovie(fav);
 				return res;
-			}) as Iterable<
-				MovieInterface[] | PromiseLike<MovieInterface[] | undefined> | undefined
-			>);
+			}) as Promise<MovieInterface>[] | undefined);
 
-		const awaitAll = await Promise.all<MovieInterface[]>(multipleRes).then(
+		const awaitAll = await Promise.all<any>(multipleRes).then(
 			(values) => values
 		);
 

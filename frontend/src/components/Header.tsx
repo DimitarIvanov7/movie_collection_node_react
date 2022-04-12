@@ -10,7 +10,7 @@ import { State } from "../interfaces/main.interface";
 import { useState, forwardRef } from "react";
 
 interface HeaderProps {
-	searchRef: React.LegacyRef<HTMLInputElement> | null;
+	searchRef: React.ForwardedRef<HTMLInputElement> | null;
 }
 
 const Header = ({ searchRef }: HeaderProps) => {

@@ -4,7 +4,7 @@ import Header from "./Header";
 import { useRef } from "react";
 
 export const Hero = () => {
-	const searchRef = useRef<React.LegacyRef<HTMLInputElement> | null>(null);
+	const searchRef = useRef<any>(null);
 
 	return (
 		<section
