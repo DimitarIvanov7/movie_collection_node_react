@@ -99,13 +99,18 @@ const Movie = () => {
 		setUser(updatedUser);
 	};
 
-	const handleAddComments = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleAddComments = async (e: React.SyntheticEvent) => {
 		e.preventDefault();
+
+		const target = e.target as typeof e.target & {
+			comment: { value: string };
+		};
+
 		if (!userState) {
 			alert("You need to login first!");
 			return;
 		}
-		const text = e.target.comment.value;
+		const text = target.comment.value;
 
 		const res =
 			id &&
@@ -126,7 +131,7 @@ const Movie = () => {
 
 		updatedUser.interested = res;
 
-		e.target.comment.value = "";
+		target.comment.value = "";
 
 		setUser(updatedUser);
 	};

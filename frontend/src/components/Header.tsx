@@ -7,10 +7,10 @@ import { bindActionCreators } from "redux";
 import { actionCreators } from "../state/index";
 import { logoutUser } from "../fetchData/Auth";
 import { State } from "../interfaces/main.interface";
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 
 interface HeaderProps {
-	searchRef: null | HTMLInputElement;
+	searchRef: React.LegacyRef<HTMLInputElement> | null;
 }
 
 const Header = ({ searchRef }: HeaderProps) => {
@@ -23,11 +23,16 @@ const Header = ({ searchRef }: HeaderProps) => {
 
 	const navigate = useNavigate();
 
-	const handleSearch = (e) => {
+	const handleSearch = (e: React.SyntheticEvent): void => {
 		e.preventDefault();
-		console.log(e.target.movie.value);
 
-		const path = `/search?q=${e.target.movie.value}`;
+		const target = e.target as typeof e.target & {
+			movie: { value: string };
+		};
+
+		// console.log(target.movie.value);
+
+		const path = `/search?q=${target.movie.value}`;
 		navigate(path);
 
 		onBlur();
@@ -38,9 +43,7 @@ const Header = ({ searchRef }: HeaderProps) => {
 
 	const userState = useSelector((state: State) => state.user);
 
-	const handeLogout = async (e) => {
-		e.preventDefault();
-
+	const handeLogout = async (): Promise<void> => {
 		const res = userState && (await logoutUser(userState.accessToken));
 
 		if (res === "You logged out successfully.") setUser(false);

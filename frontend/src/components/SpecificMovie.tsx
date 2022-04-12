@@ -29,7 +29,7 @@ const SpecificMovie = ({ movie, type }: State) => {
 	const dispatch = useDispatch();
 	const { setUser } = bindActionCreators(actionCreators, dispatch);
 
-	const handleFavourite = async (type: string) => {
+	const handleFavourite = async (type: string): Promise<void> => {
 		if (!userState) {
 			alert("You need to login first!");
 			return;

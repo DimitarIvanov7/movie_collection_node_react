@@ -9,18 +9,20 @@ import { actionCreators } from "../state/index";
 import { createUser, loginUser } from "../fetchData/Auth";
 
 const Login = () => {
-	const [createAccount, setCreateAccount] = useState(false);
+	const [createAccount, setCreateAccount] = useState<boolean>(false);
 
 	const dispatch = useDispatch();
 	const { LoginOpen, setUser } = bindActionCreators(actionCreators, dispatch);
 
-	const handleNewUser = async (e) => {
+	const handleNewUser = async (e: React.SyntheticEvent): Promise<void> => {
 		e.preventDefault();
 
-		const res = await createUser(
-			e.target.username.value,
-			e.target.password.value
-		);
+		const target = e.target as typeof e.target & {
+			username: { value: string };
+			password: { value: string };
+		};
+
+		const res = await createUser(target.username.value, target.password.value);
 		alert(res);
 
 		if (res == "Successfully created") {
@@ -28,13 +30,15 @@ const Login = () => {
 		}
 	};
 
-	const handleLogin = async (e) => {
+	const handleLogin = async (e: React.SyntheticEvent): Promise<void> => {
 		e.preventDefault();
 
-		const res = await loginUser(
-			e.target.username.value,
-			e.target.password.value
-		);
+		const target = e.target as typeof e.target & {
+			username: { value: string };
+			password: { value: string };
+		};
+
+		const res = await loginUser(target.username.value, target.password.value);
 
 		if (res === "Wrong username" || res === "Wrong password!") {
 			alert(res);

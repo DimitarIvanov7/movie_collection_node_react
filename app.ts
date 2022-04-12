@@ -108,13 +108,13 @@ app.post("/api/login", async (req, res) => {
 	}
 });
 
-const verifyUser = (req, res, next) => {
+const verifyUser = (req: any, res: any, next: any) => {
 	const authHeader = req.headers.authorization;
 	if (authHeader) {
 		const token = authHeader.split(" ")[1];
 
 		secretAccessKey &&
-			verify(token, secretAccessKey, (err, user) => {
+			verify(token, secretAccessKey, (err: any, user: any) => {
 				if (err) {
 					return res.status(403).json("Token is not valid!");
 				}

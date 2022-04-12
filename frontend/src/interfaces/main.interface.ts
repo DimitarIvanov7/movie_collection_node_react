@@ -46,10 +46,24 @@ export interface MovieInterface {
 	img: string;
 }
 
+export interface MovieSearch {
+	data: {
+		title: string;
+		id: number;
+		genre_ids: number[];
+		overview: string;
+		homepage?: string;
+		release_date: string;
+		vote_average: number;
+	};
+	genre: string;
+	img: string;
+}
+
 export interface State {
 	loginOpen?: boolean;
 	user?: User;
 	search?: Search[];
-	movie: MovieInterface;
+	movie: MovieInterface | MovieSearch;
 	type: string | null;
 }

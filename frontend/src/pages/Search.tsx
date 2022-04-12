@@ -42,30 +42,34 @@ const Search = () => {
 			: setResults([]);
 	}, [searchState]);
 
-	const getSearchResults = async () => {
+	const getSearchResults = async (): Promise<void> => {
 		const res = await searchMovies(q);
 		initialState(res);
 	};
 
-	const getGenres = async () => {
+	const getGenres = async (): Promise<void> => {
 		const res = await getAllGenres();
 		setGenres(res);
 	};
 
-	const handleGenreFilter = (genre) => {
-		const selected = genre.target.value;
+	const handleGenreFilter = (
+		genre: React.FormEvent<HTMLSelectElement>
+	): void => {
+		const selected = genre.target as HTMLSelectElement;
 
-		if (selected === "all") {
+		if (selected.value === "all") {
 			setResults(searchState);
 			return;
 		}
 		searchState &&
-			setResults(searchState.filter((result) => result.genre === selected));
+			setResults(
+				searchState.filter((result) => result.genre === selected.value)
+			);
 	};
 
 	const [isPopularitySortUp, setIsPopularitySortUp] = useState(false);
 
-	const handlePopularitySort = () => {
+	const handlePopularitySort = (): void => {
 		if (isPopularitySortUp) {
 			searchState &&
 				setResults(
@@ -83,7 +87,7 @@ const Search = () => {
 		}
 	};
 
-	const [isDateReleasedUp, setIsDateReleasedUp] = useState(false);
+	const [isDateReleasedUp, setIsDateReleasedUp] = useState<boolean>(false);
 
 	const handleDateSort = () => {
 		if (isDateReleasedUp) {
@@ -91,7 +95,7 @@ const Search = () => {
 				setResults(
 					searchState.sort(
 						(a, b) =>
-							new Date(a.data.release_date) - new Date(b.data.release_date)
+							+new Date(a.data.release_date) - +new Date(b.data.release_date)
 					)
 				);
 		} else {
@@ -99,7 +103,7 @@ const Search = () => {
 				setResults(
 					searchState.sort(
 						(a, b) =>
-							new Date(b.data.release_date) - new Date(a.data.release_date)
+							+new Date(b.data.release_date) - +new Date(a.data.release_date)
 					)
 				);
 		}
@@ -163,7 +167,7 @@ const Search = () => {
 					<div className="results-wrapper flex flex-col gap-6">
 						{results && results.length > 0 ? (
 							results.map((result) => (
-								<SpecificMovie key={uuidv4()} movie={result} />
+								<SpecificMovie key={uuidv4()} movie={result} type={null} />
 							))
 						) : (
 							<p>No data by this criteria</p>
