@@ -58,10 +58,14 @@ const SpecificMovie = ({ movie, type }: State) => {
 	const LinkElement = useRef(null);
 
 	return (
-		<div className={`${!type && `flex gap-4 w-10/12`}`}>
+		<div
+			className={`${
+				!type && `mx-auto md:w-full w-10/12 md:mx-0 lg:flex gap-4 lg:w-10/12`
+			}`}
+		>
 			<Link ref={LinkElement} to={route}></Link>
 			<img
-				className={`${!type ? `w-1/5` : ` m-0 w-48`} cursor-pointer`}
+				className={`${!type ? `lg:w-1/5` : ` m-0 w-48`} cursor-pointer`}
 				src={
 					movie.img !== "https://image.tmdb.org/t/p/w500null"
 						? movie.img

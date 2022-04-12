@@ -112,8 +112,8 @@ const Search = () => {
 		<div>
 			<Header searchRef={null} />
 
-			<section className="main flex mt-4">
-				<div className="filtes w-1/6 ml-4">
+			<section className="main md:flex  mt-4">
+				<div className="filtes w-fit sm:w-2/6 sm:ml-4 lg:w-1/6 mx-auto">
 					<h2 className="text-2rem">Filter movies</h2>
 
 					<h3 className={searchStyling.label}>By Genre</h3>
@@ -154,8 +154,10 @@ const Search = () => {
 						{!isDateReleasedUp ? "Newest ↑" : "Oldest ↓"}
 					</button>
 				</div>
-				<div className="results w-5/6">
-					<h2 className="text-2rem mb-6">Results</h2>
+				<div className="results md:w-5/6 w-full">
+					<h2 className="mt-4 lg:mt-0 sm:text-left text-center text-2rem mb-6 ml-2 lg:ml-2">
+						Results
+					</h2>
 					<div className="results-wrapper flex flex-col gap-6">
 						{results &&
 							results.map((result) => (

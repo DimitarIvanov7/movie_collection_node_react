@@ -35,8 +35,8 @@ const Home = () => {
 	return (
 		<div>
 			<Hero />
-			<div className="w-full bg-dark-max h-12">
-				<h2 className={`${classes.heading} ml-3`}>
+			<div className="w-full bg-dark-max">
+				<h2 className={`${classes.heading} ml-3 text-center sm:text-left`}>
 					Check your favourite movies
 				</h2>
 				<section
@@ -54,14 +54,14 @@ const Home = () => {
 									<SpecificMovie key={uuidv4()} movie={fav} type="homepage" />
 								))
 							) : (
-								<p className={`${classes.heading} pt-11 text-center`}>
+								<p className={`text-2rem text-black pt-11 text-center`}>
 									Your favourite list is empty
 								</p>
 							)}
 						</div>
 					) : (
 						<div>
-							<p className={`${classes.heading} pt-11 text-center`}>
+							<p className={`text-2rem text-black pt-11 text-center`}>
 								You need to login to see your favourites
 							</p>
 						</div>

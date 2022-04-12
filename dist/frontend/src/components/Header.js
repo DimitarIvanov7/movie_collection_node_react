@@ -43,12 +43,12 @@ const Header = ({ searchRef }) => {
         }
     });
     const background = location.pathname === "/" ? "bg-transparent" : "bg-dark";
-    return (<header className={`p-4 flex justify-between ${background}`}>
+    return (<header className={`p-4 flex flex-col gap-4 justify-between ${background} md:flex-row`}>
 			<Link to="/">
 				<h1 className={classes.heading}>My Movie Collection</h1>
 			</Link>
 			<div className="form-container flex gap-x-1.5">
-				<form onSubmit={(e) => handleSearch(e)} className="flex gap-x-1.5">
+				<form onSubmit={(e) => handleSearch(e)} className="flex gap-x-1.5 ml-auto">
 					<input ref={searchRef} onFocus={onFocus} onBlur={onBlur} style={{
             boxShadow: isSearchFocus ? "0 0 0 9999px #000000b0" : "none",
             zIndex: 99,

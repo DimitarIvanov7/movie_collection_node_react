@@ -40,21 +40,21 @@ const Login = () => {
         buttonLog: "text-white rounded px-4 border border-white",
         heading: "text-lg font-bold m-2 text-white",
         wrapper: "wrapper m-2",
-        form: "flex gap-2 mb-2",
+        form: "sm:flex gap-2 mb-2",
         text: "text-white",
         bold: "font-bold cursor-pointer",
-        button: "text-white rounded px-4 border border-white",
+        button: "text-white rounded px-4 border border-white block",
     };
-    return (<div className=" flex flex-col w-screen bg-mainBg">
+    return (<div className="flex flex-col w-screen bg-mainBg">
 			<AiFillCloseCircle style={{ color: "white" }} className="right-0 m-2 absolute cursor-pointer" onClick={() => LoginOpen(false)}/>
 			{!createAccount ? (<>
 					<h2 className={loginClases.heading}>Login to your Account</h2>
 
 					<div className={loginClases.wrapper}>
 						<form className={loginClases.form} action="/" onSubmit={handleLogin}>
-							<input className="username-input" type="text" name="username" placeholder="username" required/>
-							<input type="password" name="password" placeholder="password" required/>
-							<button className={loginClases.button} type="submit">
+							<input className="username-input mr-2 sm:mr-0" type="text" name="username" placeholder="username" required/>
+							<input className="mt-2 sm:mt-0" type="password" name="password" placeholder="password" required/>
+							<button className={`${loginClases.button} mt-2 sm:mt-0`} type="submit">
 								Login
 							</button>
 						</form>

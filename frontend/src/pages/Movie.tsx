@@ -193,9 +193,9 @@ const Movie = () => {
 			<Header searchRef={null} />
 			{movie && (
 				<div className="my-6 mx-10">
-					<div className="main-info flex gap-10">
+					<div className="main-info md:flex gap-10">
 						<img
-							className="w-1/5"
+							className="w-full md:w-2/5 lg:w-1/5"
 							src={
 								movie.img !== "https://image.tmdb.org/t/p/w500null"
 									? movie.img
@@ -204,7 +204,7 @@ const Movie = () => {
 							alt=""
 						/>
 						<div className="movie-data">
-							<h2 className="text-5xl mb-4">
+							<h2 className="text-5xl mb-4 mt-2 md:mt-0">
 								{movie.data.title} ({movie.data.release_date.substring(0, 4)})
 							</h2>
 							<div className="flex font-bold">
@@ -219,7 +219,7 @@ const Movie = () => {
 								&nbsp; | {movie.data.vote_average}/10
 							</div>
 
-							<p className="my-4 w-4/5">
+							<p className="my-4 w-full lg:w-4/5 ">
 								{movie.data.overview || "no overwiev info"}
 							</p>
 							{movie.data.homepage ? (
@@ -269,7 +269,7 @@ const Movie = () => {
 							)}
 							<form action="/" onSubmit={(e) => handleAddComments(e)}>
 								<textarea
-									className="px-2 border border-grey mt-4 block"
+									className="w-11/12 sm:w-11/12 md:w-fit px-2 border border-grey mt-4 block"
 									name="comment"
 									id="textarea-input"
 									rows={6}
