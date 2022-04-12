@@ -23,6 +23,16 @@ module.exports = {
 			black: {
 				DEFAULT: "#000000",
 			},
+			green: {
+				DEFAULT: "#10B72F",
+			},
+			red: {
+				DEFAULT: "#D02E12",
+			},
+			blue: {
+				DEFAULT: "rgba(44, 97, 246, 1)",
+				light: "rgba(44, 97, 246, 0.64)",
+			},
 		},
 		extend: {
 			boxShadow: {

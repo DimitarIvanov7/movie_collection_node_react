@@ -24,6 +24,8 @@ import {
 
 import { v4 as uuidv4 } from "uuid";
 
+import classes, { movieStyleClasses } from "../tailwindClasses";
+
 const Movie = () => {
 	const { id } = useParams();
 
@@ -34,10 +36,6 @@ const Movie = () => {
 	const getMovieData = async () => {
 		const res = id && (await getSingleMovie(parseInt(id)));
 		setMovie(res);
-	};
-
-	const getGenres = (genre: genreInterface) => {
-		return <p key={uuidv4()}>{genre.name}</p>;
 	};
 
 	const userState = useSelector((state: State) => state.user);
@@ -128,11 +126,9 @@ const Movie = () => {
 
 		updatedUser.interested = res;
 
-		setUser(updatedUser);
+		e.target.comment.value = "";
 
-		Array.from(document.querySelectorAll("input")).forEach(
-			(input) => (input.value = "")
-		);
+		setUser(updatedUser);
 	};
 
 	const handeDeleteComment = async () => {
@@ -194,33 +190,60 @@ const Movie = () => {
 
 	return (
 		<div>
-			<Header />
+			<Header searchRef={null} />
 			{movie && (
-				<div className="container">
-					<div className="main-info">
-						<img src={movie.img} alt="" />
+				<div className="my-6 mx-10">
+					<div className="main-info flex gap-10">
+						<img
+							className="w-1/5"
+							src={
+								movie.img !== "https://image.tmdb.org/t/p/w500null"
+									? movie.img
+									: "/images/no_img.png"
+							}
+							alt=""
+						/>
 						<div className="movie-data">
-							<h2>{movie.data.title}</h2>
-							<div>
-								{movie.data.genres.map((genre) => {
-									return getGenres(genre);
-								})}
+							<h2 className="text-5xl mb-4">
+								{movie.data.title} ({movie.data.release_date.substring(0, 4)})
+							</h2>
+							<div className="flex font-bold">
+								{movie.data.genres.length !== 0
+									? movie.data.genres.map((genre, i) => {
+											if (i === 0) return <p key={uuidv4()}>{genre.name}, </p>;
+											else if (i === movie.data.genres.length - 1)
+												return <p key={uuidv4()}>&nbsp; {genre.name}</p>;
+											else return <p key={uuidv4()}>&nbsp; {genre.name}, </p>;
+									  })
+									: "no genre info"}
+								&nbsp; | {movie.data.vote_average}/10
 							</div>
 
-							<p>{movie.data.overview}</p>
-							<a href={movie.data.homepage}>Official site</a>
+							<p className="my-4 w-4/5">
+								{movie.data.overview || "no overwiev info"}
+							</p>
+							{movie.data.homepage ? (
+								<a
+									className="block mb-8 text-blue hover:text-blue-light w-fit"
+									href={movie.data.homepage}
+								>
+									Official site
+								</a>
+							) : (
+								<p className="mb-8">No official site provided</p>
+							)}
 
 							{!isFavourite ? (
 								<button
 									onClick={() => handleFavourite("add")}
-									style={{ backgroundColor: "green" }}
+									className={movieStyleClasses.buttonAdd}
 								>
 									Add to Favourites
 								</button>
 							) : (
 								<button
 									onClick={() => handleFavourite("remove")}
-									style={{ backgroundColor: "red" }}
+									className={movieStyleClasses.buttonRemove}
 								>
 									Remove from Favourites
 								</button>
@@ -228,8 +251,8 @@ const Movie = () => {
 						</div>
 					</div>
 
-					<div className="review-container">
-						<h2>Your Review</h2>
+					<div className="review-container mt-8">
+						<h2 className="text-2rem font-bold mb-4">Your Review</h2>
 						<StarRatings
 							rating={rating}
 							changeRating={handleRating}
@@ -238,24 +261,38 @@ const Movie = () => {
 						/>
 
 						<section className="comment-section">
-							{userState && <p>{displayComments()}</p>}
+							{userState && (
+								<>
+									<h3 className="text-lg font-bold mt-4">Your Notes:</h3>
+									<p>{displayComments()}</p>
+								</>
+							)}
 							<form action="/" onSubmit={(e) => handleAddComments(e)}>
-								<input
+								<textarea
+									className="px-2 border border-grey mt-4 block"
 									name="comment"
-									type="text"
-									placeholder="Add comment"
+									id="textarea-input"
+									rows={6}
+									cols={70}
+									placeholder="Your private notes and comments about the movie..."
 									required
-								/>
+								></textarea>
 
-								<button type="submit">Submit comment</button>
+								<button
+									className=" my-4 bg-transparent hover:bg-grey text-grey font-semibold hover:text-white py-2 px-4 border border-grey hover:border-transparent rounded"
+									type="submit"
+								>
+									Submit note
+								</button>
 							</form>
 							<button
+								className="bg-transparent hover:bg-red text-grey font-semibold hover:text-white py-2 px-4 border border-grey hover:border-transparent cursor-pointer rounded"
 								onClick={handeDeleteComment}
 								disabled={
 									interest && interest.comment.length !== 0 ? false : true
 								}
 							>
-								Delete comment
+								Delete notes
 							</button>
 						</section>
 					</div>

@@ -103,16 +103,26 @@ const Search = () => {
 		}
 	};
 
+	const searchStyling = {
+		label: "text-lg mt-3 font-bold",
+		sortButton: "text-lg text-white cursor-pointer rounded px-2  bg-mainBg ",
+	};
+
 	return (
 		<div>
-			<Header />
+			<Header searchRef={null} />
 
-			<section className="main">
-				<div className="filtes">
-					<h2>Filter movies</h2>
+			<section className="main flex mt-4">
+				<div className="filtes w-1/6 ml-4">
+					<h2 className="text-2rem">Filter movies</h2>
 
-					<h3>Genres</h3>
-					<select onChange={handleGenreFilter} name="genre" id="genre-select">
+					<h3 className={searchStyling.label}>By Genre</h3>
+					<select
+						className={searchStyling.sortButton}
+						onChange={handleGenreFilter}
+						name="genre"
+						id="genre-select"
+					>
 						<option value="all">All genres</option>
 						{genres &&
 							genres.map((genre) => (
@@ -122,29 +132,31 @@ const Search = () => {
 							))}
 					</select>
 
-					<h3>Sort by rating</h3>
+					<h3 className={searchStyling.label}>Sort by rating</h3>
 					<button
+						className={searchStyling.sortButton}
 						onClick={() => {
 							setIsPopularitySortUp(!isPopularitySortUp);
 							handlePopularitySort();
 						}}
 					>
-						{!isPopularitySortUp ? "Most popular" : "Least popular"}
+						{!isPopularitySortUp ? "Most popular ↑" : "Least popular ↓"}
 					</button>
 
-					<h3>Sort by date released</h3>
+					<h3 className={searchStyling.label}>Sort by date released</h3>
 					<button
+						className={searchStyling.sortButton}
 						onClick={() => {
 							setIsDateReleasedUp(!isDateReleasedUp);
 							handleDateSort();
 						}}
 					>
-						{!isDateReleasedUp ? "Newest" : "Oldest"}
+						{!isDateReleasedUp ? "Newest ↑" : "Oldest ↓"}
 					</button>
 				</div>
-				<div className="results">
-					<h2>Results</h2>
-					<div className="results-wrapper">
+				<div className="results w-5/6">
+					<h2 className="text-2rem mb-6">Results</h2>
+					<div className="results-wrapper flex flex-col gap-6">
 						{results &&
 							results.map((result) => (
 								<SpecificMovie key={uuidv4()} movie={result} />

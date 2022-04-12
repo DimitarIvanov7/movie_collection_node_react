@@ -8,13 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import React from "react";
-import { Link } from "react-router-dom";
 import { addFavourite, deleteFavourite } from "../fetchData/Auth";
 import { useSelector, useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
 import { actionCreators } from "../state/index";
-import { useState, useEffect } from "react";
-const SpecificMovie = ({ movie }) => {
+import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+import { movieStyleClasses } from "../tailwindClasses";
+const SpecificMovie = ({ movie, type }) => {
     const route = movie && `/movies/${movie.data.id}`;
     const userState = useSelector((state) => state.user);
     const [isFavourite, setIsFavourite] = useState(false);
@@ -46,28 +47,31 @@ const SpecificMovie = ({ movie }) => {
         updatedUser.favourite = res;
         setUser(updatedUser);
     });
-    return (<div className="container">
-			<Link to={route}>
-				<img src={movie.img} alt=""/>
-			</Link>
+    const LinkElement = useRef(null);
+    return (<div className={`${!type && `flex gap-4 w-10/12`}`}>
+			<Link ref={LinkElement} to={route}></Link>
+			<img className={`${!type ? `w-1/5` : ` m-0 w-48`} cursor-pointer`} src={movie.img !== "https://image.tmdb.org/t/p/w500null"
+            ? movie.img
+            : "/images/no_img.png"} alt="" onClick={() => {
+            LinkElement.current && LinkElement.current.click();
+        }}/>
 
-			<div className="second-part">
-				<h3>{movie.data.title}</h3>
+			{!type && (<div className="second-part flex flex-col">
+					<h3 className="text-2rem m-0 align-text-top cursor-pointer" onClick={() => (window.location.href = route)}>
+						{movie.data.title} ({movie.data.release_date.substring(0, 4)})
+					</h3>
 
-				<div className="category-container">
-					<p>
-						{movie.genre} | {movie.data.release_date} |{" "}
-						{movie.data.vote_average}/10
+					<p className="my-2 font-bold">
+						{movie.genre || "no genre info"} | {movie.data.vote_average}/10
 					</p>
 
-					<p>{movie.data.overview}</p>
-					{!isFavourite ? (<button style={{ backgroundColor: "green" }} onClick={() => handleFavourite("add")}>
+					<p>{movie.data.overview || "No overview data"}</p>
+					{!isFavourite ? (<button className={`${movieStyleClasses.buttonAdd} w-fit mt-4`} onClick={() => handleFavourite("add")}>
 							Add To Favourites
-						</button>) : (<button style={{ backgroundColor: "red" }} onClick={() => handleFavourite("remove")}>
+						</button>) : (<button className={`${movieStyleClasses.buttonRemove} w-fit mt-4`} onClick={() => handleFavourite("remove")}>
 							Remove from Favourites
 						</button>)}
-				</div>
-			</div>
+				</div>)}
 		</div>);
 };
 export default SpecificMovie;

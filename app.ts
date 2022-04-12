@@ -86,8 +86,6 @@ app.post("/api/login", async (req, res) => {
 
 	const validPass = await bcrypt.compare(req.body.password, validName.password);
 
-	console.log(validPass);
-
 	if (validPass) {
 		//Generate an access token
 		const accessToken = generateAccessToken(username);

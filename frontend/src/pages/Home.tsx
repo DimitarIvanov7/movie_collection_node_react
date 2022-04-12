@@ -39,25 +39,34 @@ const Home = () => {
 				<h2 className={`${classes.heading} ml-3`}>
 					Check your favourite movies
 				</h2>
-				{userState ? (
-					<section className="bg-mainBg" style={{ minHeight: "10rem" }}>
-						{favourite.length > 0 ? (
-							favourite.map((fav) => (
-								<SpecificMovie key={uuidv4()} movie={fav} />
-							))
-						) : (
+				<section
+					className="bg-darkWhite w-full pb-20"
+					style={{ minHeight: "10rem" }}
+				>
+					{userState ? (
+						<div className="flex gap-4 flex-wrap mx-auto justify-center ">
+							<h2 className="font-bold text-3xl py-4 w-full text-center">
+								Your Favorites
+							</h2>
+
+							{favourite.length > 0 ? (
+								favourite.map((fav) => (
+									<SpecificMovie key={uuidv4()} movie={fav} type="homepage" />
+								))
+							) : (
+								<p className={`${classes.heading} pt-11 text-center`}>
+									Your favourite list is empty
+								</p>
+							)}
+						</div>
+					) : (
+						<div>
 							<p className={`${classes.heading} pt-11 text-center`}>
-								Your favourite list is empty
+								You need to login to see your favourites
 							</p>
-						)}
-					</section>
-				) : (
-					<section className="bg-mainBg" style={{ minHeight: "10rem" }}>
-						<p className={`${classes.heading} pt-11 text-center`}>
-							You need to login to see your favourites
-						</p>
-					</section>
-				)}
+						</div>
+					)}
+				</section>
 			</div>
 		</div>
 	);

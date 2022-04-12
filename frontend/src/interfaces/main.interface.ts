@@ -51,4 +51,5 @@ export interface State {
 	user?: User;
 	search?: Search[];
 	movie: MovieInterface;
+	type: string | null;
 }
