@@ -41,12 +41,13 @@ const Header = ({ searchRef }: HeaderProps) => {
 		onBlur();
 	};
 
-	//redux states that check if
+	//redux actions that check if login is open (to display the login component on all pages). And setuser
 	const dispatch = useDispatch();
 	const { LoginOpen, setUser } = bindActionCreators(actionCreators, dispatch);
 
 	const userState = useSelector((state: State) => state.user);
 
+	//on logout button click, user is set to false
 	const handeLogout = async (): Promise<void> => {
 		const res = userState && (await logoutUser(userState.accessToken));
 

@@ -123,7 +123,7 @@ const Search = () => {
 		<div>
 			<Header searchRef={null} />
 
-			<section className="main md:flex  mt-4">
+			<section className="main md:flex mt-4 mb-12">
 				<div className="filtes w-fit sm:w-2/6 sm:ml-4 lg:w-1/6 mx-auto">
 					<h2 className="text-2rem">Filter movies</h2>
 

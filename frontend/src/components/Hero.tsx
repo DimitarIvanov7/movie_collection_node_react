@@ -4,6 +4,7 @@ import Header from "./Header";
 import { useRef } from "react";
 
 export const Hero = () => {
+	//ref to the searhc input element
 	const searchRef = useRef<any>(null);
 
 	return (

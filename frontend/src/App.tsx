@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { State } from "./interfaces/main.interface";
 
 function App() {
+	// gets the redux state to determine if it's going to display the login component
 	const loginState = useSelector((state: State) => state.loginOpen);
 
 	return (

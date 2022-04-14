@@ -9,8 +9,10 @@ import { actionCreators } from "../state/index";
 import { createUser, loginUser } from "../fetchData/Auth";
 
 const Login = () => {
+	//checks if the user clicks on create new account or on login and display the according data
 	const [createAccount, setCreateAccount] = useState<boolean>(false);
 
+	//redux state for setting the user data on successful login and setting the loginOpne to tru or false
 	const dispatch = useDispatch();
 	const { LoginOpen, setUser } = bindActionCreators(actionCreators, dispatch);
 
@@ -22,6 +24,7 @@ const Login = () => {
 			password: { value: string };
 		};
 
+		//request to the create user endpoint. If the data passes the validation, new user is created
 		const res = await createUser(target.username.value, target.password.value);
 		alert(res);
 
@@ -38,6 +41,7 @@ const Login = () => {
 			password: { value: string };
 		};
 
+		//If username and password are correct, the redux userState is set to the
 		const res = await loginUser(target.username.value, target.password.value);
 
 		if (res === "Wrong username" || res === "Wrong password!") {
@@ -49,6 +53,8 @@ const Login = () => {
 
 		LoginOpen(false);
 	};
+
+	//tailwind styling classes
 
 	const loginClases = {
 		buttonLog: "text-white rounded px-4 border border-white",
