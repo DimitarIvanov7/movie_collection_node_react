@@ -8,34 +8,34 @@ import SpecificMovie from "../components/SpecificMovie";
 import { useSelector, useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
 import { actionCreators } from "../state/index";
-import {
-	State,
-	genreInterface,
-	MovieInterface,
-} from "../interfaces/main.interface";
+import { State, genreInterface } from "../interfaces/main.interface";
 import { v4 as uuidv4 } from "uuid";
 
 const Search = () => {
+	//search query is passed to the express endpoint to find a movie by title
 	const { search } = useLocation();
 
+	//query
 	const q = search.substring(3);
 
 	const [results, setResults] = useState<State["search"]>([]);
+
+	//gets the genres for the html select element that filters movies by genre
 	const [genres, setGenres] = useState<genreInterface[]>([]);
 
-	//redux
+	//redux for changing the search state
 	const dispatch = useDispatch();
 	const { initialState } = bindActionCreators(actionCreators, dispatch);
 
 	const searchState = useSelector((state: State) => state.search);
 
-	console.log(searchState);
-
+	//gets serach results and enres on query change
 	useEffect(() => {
 		getSearchResults();
 		getGenres();
 	}, [q]);
 
+	//sets the results state on redux state change
 	useEffect(() => {
 		searchState && searchState.length > 0
 			? setResults(searchState)
@@ -52,6 +52,7 @@ const Search = () => {
 		setGenres(res);
 	};
 
+	//filter movies by genre using html select element
 	const handleGenreFilter = (
 		genre: React.FormEvent<HTMLSelectElement>
 	): void => {
@@ -67,8 +68,10 @@ const Search = () => {
 			);
 	};
 
+	//state for the popularity sort
 	const [isPopularitySortUp, setIsPopularitySortUp] = useState(false);
 
+	//check the way movies are sorted and sorts them accordingly
 	const handlePopularitySort = (): void => {
 		if (isPopularitySortUp) {
 			searchState &&
@@ -87,6 +90,7 @@ const Search = () => {
 		}
 	};
 
+	//checks the date release sort
 	const [isDateReleasedUp, setIsDateReleasedUp] = useState<boolean>(false);
 
 	const handleDateSort = () => {
@@ -109,6 +113,7 @@ const Search = () => {
 		}
 	};
 
+	//tailwind styling for the filters
 	const searchStyling = {
 		label: "text-lg mt-3 font-bold",
 		sortButton: "text-lg text-white cursor-pointer rounded px-2  bg-mainBg ",

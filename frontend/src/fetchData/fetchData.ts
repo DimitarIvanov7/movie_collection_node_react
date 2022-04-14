@@ -1,3 +1,5 @@
+// fucntions that get movie data that don't require authentication
+
 export const searchMovies = async (query: string) => {
 	const res = await fetch(`/search/${query}`);
 

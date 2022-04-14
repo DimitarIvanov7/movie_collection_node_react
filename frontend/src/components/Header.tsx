@@ -14,13 +14,16 @@ interface HeaderProps {
 }
 
 const Header = ({ searchRef }: HeaderProps) => {
+	//on "Browse" button click the search input is focused
 	const [isSearchFocus, setIsSearchFocus] = useState(false);
 
+	//changes the focus
 	const onFocus = () => setIsSearchFocus(true);
 	const onBlur = () => setIsSearchFocus(false);
 
 	const location = useLocation();
 
+	//used to navigate to search results page
 	const navigate = useNavigate();
 
 	const handleSearch = (e: React.SyntheticEvent): void => {
@@ -30,14 +33,15 @@ const Header = ({ searchRef }: HeaderProps) => {
 			movie: { value: string };
 		};
 
-		// console.log(target.movie.value);
-
+		//path is created to the search page with the user input as a query
 		const path = `/search?q=${target.movie.value}`;
 		navigate(path);
 
+		//focus is removed from the search input
 		onBlur();
 	};
 
+	//redux states that check if
 	const dispatch = useDispatch();
 	const { LoginOpen, setUser } = bindActionCreators(actionCreators, dispatch);
 

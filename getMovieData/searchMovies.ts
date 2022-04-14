@@ -26,6 +26,7 @@ interface Search {
 	results: MovieInterface[];
 }
 
+//filter out the inappropriate movies
 const removeAdultFilms = (movie: MovieInterface) => {
 	if (
 		!movie.adult &&
@@ -36,6 +37,7 @@ const removeAdultFilms = (movie: MovieInterface) => {
 		return movie;
 };
 
+//get all the genres
 export const getAllGenres = async (
 	key: string
 ): Promise<MovieInterface["genres"]> => {
@@ -47,6 +49,8 @@ export const getAllGenres = async (
 	return resJSON.genres;
 };
 
+//single genre. I need this function because the movie returns genre ids and you need to make a request to the API to
+//get the genre for each id
 const getGenre = async (id: number, key: string) => {
 	const res = await fetch(
 		`https://api.themoviedb.org/3/genre/movie/list?api_key=${key}&language=en-US`
@@ -59,6 +63,7 @@ const getGenre = async (id: number, key: string) => {
 	return data && data.name;
 };
 
+//this fucntion is used to get the poster url for each movie
 const configurationMovieDB = async (key: string) => {
 	const res = await fetch(
 		`https://api.themoviedb.org/3/configuration?api_key=${key}`
@@ -70,6 +75,7 @@ const configurationMovieDB = async (key: string) => {
 	return url;
 };
 
+//get and array of movies for the "search" page
 export const searchMovies = async (query: string, key: string) => {
 	const url = `https://api.themoviedb.org/3/search/movie?api_key=${key}&query=${query}`;
 
@@ -92,6 +98,7 @@ export const searchMovies = async (query: string, key: string) => {
 	return Promise.all(data).then((values) => values);
 };
 
+//get single movie
 export const getMovie = async (id: string, key: string) => {
 	const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${key}`;
 

@@ -9,10 +9,13 @@ import { State, MovieInterface } from "../interfaces/main.interface";
 import { v4 as uuidv4 } from "uuid";
 
 const Home = () => {
+	//gets the user state from redux. Returns false if user is not loged in
 	const userState = useSelector((state: State) => state.user);
 
+	// this state is used to display the favourite movies below the hero section
 	const [favourite, setFavourite] = useState<MovieInterface[]>([]);
 
+	// gets the favourite movies if user is logged in
 	useEffect(() => {
 		userState && GetFavourites();
 	}, [userState]);

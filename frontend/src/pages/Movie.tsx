@@ -27,6 +27,7 @@ import { v4 as uuidv4 } from "uuid";
 import classes, { movieStyleClasses } from "../tailwindClasses";
 
 const Movie = () => {
+	// id is the url parameter that is used to find the specific movie by id
 	const { id } = useParams();
 
 	const [movie, setMovie] = useState<MovieInterface>();
@@ -38,10 +39,13 @@ const Movie = () => {
 		setMovie(res);
 	};
 
+	//redux state that gets the user data if user is logged in
 	const userState = useSelector((state: State) => state.user);
 
+	//this state is used to set the movie as favourite or not
 	const [isFavourite, setIsFavourite] = useState(false);
 
+	//this variable get's the comments and the rating for the movie
 	const interest =
 		userState &&
 		id &&
@@ -50,10 +54,12 @@ const Movie = () => {
 	useEffect(() => {
 		getMovieData();
 
+		//sets the favourite to false once the user logs out
 		!userState && setIsFavourite(false);
 
 		const favList = userState && userState.favourite.map((fav: number) => fav);
 
+		//if the movie id is in favourite array, the movie is set as favourite
 		userState
 			? id && favList && setIsFavourite(favList.includes(parseInt(id)))
 			: id && setIsFavourite(false);
@@ -61,6 +67,7 @@ const Movie = () => {
 		userState ? setRating(interest ? interest.rating : 0) : setRating(0);
 	}, [id, userState]);
 
+	//redux actions that update the user state once a movie is add/removed from favourites or comment/rating is added/removed
 	const dispatch = useDispatch();
 	const { setUser } = bindActionCreators(actionCreators, dispatch);
 
@@ -71,6 +78,8 @@ const Movie = () => {
 		}
 
 		const movieId = movie && movie.data.id;
+
+		//if the movie is in favourite array, it's removed from favourite and if it's, it's added
 		const res =
 			type === "add"
 				? movieId &&
@@ -86,14 +95,17 @@ const Movie = () => {
 						userState.username
 				  ));
 
+		//checks if token is experied. If yes, the page is refreshed which logs out the user
 		if (res === "Token is not valid!") {
 			window.location.reload();
 			alert("Your token has expired");
 			return;
 		}
 
+		//copy of the userState from redux
 		const updatedUser = { ...userState };
 
+		//update the favourite list
 		updatedUser.favourite = res;
 
 		setUser(updatedUser);
@@ -106,10 +118,13 @@ const Movie = () => {
 			comment: { value: string };
 		};
 
+		//user's who aren't logged can't comment
 		if (!userState) {
 			alert("You need to login first!");
 			return;
 		}
+
+		//gets the comment string
 		const text = target.comment.value;
 
 		const res =
@@ -129,8 +144,10 @@ const Movie = () => {
 
 		const updatedUser = { ...userState };
 
+		//updates the user state with the new comment
 		updatedUser.interested = res;
 
+		//resets the text area for the comments
 		target.comment.value = "";
 
 		setUser(updatedUser);
@@ -160,11 +177,13 @@ const Movie = () => {
 	};
 
 	const displayComments = () => {
+		//if movie is in "interested" array, it returns the comments for that movie (if any)
 		const comment = interest ? interest.comment : "";
 
 		return comment;
 	};
 
+	//change the rating
 	const handleRating = async (rate: number) => {
 		if (!userState) {
 			alert("You need to login first!");

@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+//username must be a string between 5 and 30 chars. Password much be a string min 10 chars long
 export const registerValidation = (data: {
 	username: string;
 	password: string;

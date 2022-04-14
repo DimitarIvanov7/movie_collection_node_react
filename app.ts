@@ -42,6 +42,7 @@ mongoURI &&
 
 //authentication and authorization
 
+// generate jwt token when user logs in. Token expires in 40 min for security purposes
 const generateAccessToken = (user: { name: string }) => {
 	return (
 		secretAccessKey &&
@@ -51,6 +52,10 @@ const generateAccessToken = (user: { name: string }) => {
 	);
 };
 
+// create new user endpoint. This function checks if the username and password are valid, using JOI,
+// check if username already exists and if not, it creates new user
+
+// user's password is hashed using bycript
 app.post("/api/user", async (req, res) => {
 	const { error } = registerValidation(req.body);
 
@@ -70,6 +75,7 @@ app.post("/api/user", async (req, res) => {
 		return;
 	}
 
+	//creating empty arrays of "favourite" and "interested" for each user. "Interested" are movies that the user rated or commented
 	const user = new User({
 		name: username,
 		password: hashedPass,
@@ -108,6 +114,7 @@ app.post("/api/login", async (req, res) => {
 	}
 });
 
+// function that verifies the jwt using the secret key. This fucntion is used for every endpoint that requeries authentication
 const verifyUser = (req: any, res: any, next: any) => {
 	const authHeader = req.headers.authorization;
 	if (authHeader) {
@@ -131,6 +138,7 @@ app.post("/api/logout", verifyUser, (req, res) => {
 	res.status(200).json("You logged out successfully.");
 });
 
+// whenever a user adds a movie to their favourites, the movieID is added to the favourite array in mongoDB
 app.post("/api/favourite", verifyUser, async (req, res) => {
 	const movieId = parseInt(req.body.id);
 	const username = req.body.username;
@@ -167,6 +175,7 @@ app.delete("/api/favourite/:id", verifyUser, async (req, res) => {
 	res.json(updatedUser.favourite);
 });
 
+// this function does two things: adding a movie in the "interested" array and adding a comment to this movie
 const addIntrestedComment = async (
 	username: string,
 	movieId: number,
@@ -191,6 +200,7 @@ app.post("/api/interested/comment", verifyUser, async (req, res) => {
 	const username = req.body.username;
 	const comment = req.body.comment;
 
+	//if the movie id is already in the "interested" array, the new comment is concatenatinated to the previous comments
 	const checkInterested = await User.findOne({
 		name: username,
 		"interested.id": movieId,
@@ -222,6 +232,7 @@ app.post("/api/interested/comment", verifyUser, async (req, res) => {
 	res.json(updatedUser.interested);
 });
 
+//deleting comments
 app.delete("/api/interested/comment/:movieId", verifyUser, async (req, res) => {
 	const movieId = parseInt(req.params.movieId);
 	const username = req.body.username;
@@ -240,6 +251,7 @@ app.delete("/api/interested/comment/:movieId", verifyUser, async (req, res) => {
 	res.json(updatedUser.interested);
 });
 
+// this function does two things: adding a movie in the "interested" array and adding a rating for this movie
 const addIntrestedRate = async (
 	username: string,
 	movieId: number,
@@ -264,6 +276,7 @@ app.post("/api/interested/rate", verifyUser, async (req, res) => {
 	const username = req.body.username;
 	const rate = parseInt(req.body.rate);
 
+	//check if the movie is in "interested" array. If yes, the rating is changed
 	const checkInterested = await User.findOne({
 		name: username,
 		"interested.id": movieId,
@@ -287,6 +300,7 @@ app.post("/api/interested/rate", verifyUser, async (req, res) => {
 	res.json(updatedUser.interested);
 });
 
+//get array of movies by title
 app.get("/api/search/:title", async (req, res) => {
 	const param = req.params.title;
 
@@ -295,6 +309,7 @@ app.get("/api/search/:title", async (req, res) => {
 	res.send(moviesJSON);
 });
 
+//get singe movie
 app.get("/api/movies/:id", async (req, res) => {
 	const param = req.params.id;
 
@@ -303,6 +318,7 @@ app.get("/api/movies/:id", async (req, res) => {
 	res.send(movieJSON);
 });
 
+//get movie genres (is used to sort movies by genre on the "Search" page)
 app.get("/api/genres/", async (req, res) => {
 	const categorieJSON = movieAPI && (await getAllGenres(movieAPI));
 

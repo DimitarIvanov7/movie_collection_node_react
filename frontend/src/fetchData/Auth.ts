@@ -1,3 +1,5 @@
+// in this file are all the functions for actions that require authentication
+
 export const createUser = async (username: string, password: string) => {
 	const res = await fetch("/user", {
 		method: "POST",
@@ -144,17 +146,3 @@ export const addRating = async (
 
 	return resJSON;
 };
-
-// export const getUser = async (username: string, accesToken: string) => {
-// 	const res = await fetch(`/users/${username}`, {
-// 		method: "GET",
-// 		headers: {
-// 			"Content-Type": "application/json",
-// 			authorization: "Bearer " + accesToken,
-// 		},
-// 	});
-
-// 	const resJSON = await res.json();
-
-// 	return resJSON;
-// };

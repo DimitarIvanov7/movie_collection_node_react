@@ -6,6 +6,8 @@ import store from "../../state/store";
 import SpecificMovie from "../SpecificMovie";
 import React from "react";
 
+//checks if movie is rendered using test data
+
 const testMovieData = {
 	data: {
 		adult: false,
