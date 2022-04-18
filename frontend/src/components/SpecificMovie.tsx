@@ -1,3 +1,5 @@
+// this component renders the movies in the search results and the favourite movies on the home page
+
 import React from "react";
 import { addFavourite, deleteFavourite } from "../fetchData/Auth";
 import { useSelector, useDispatch } from "react-redux";
@@ -6,17 +8,19 @@ import { actionCreators } from "../state/index";
 import { useState, useEffect, useRef } from "react";
 import { State } from "../interfaces/main.interface";
 import { Link } from "react-router-dom";
-
 import { movieStyleClasses } from "../tailwindClasses";
 
 const SpecificMovie = ({ movie, type }: State) => {
+	//the route is created to navigate the user to the Movie page on click with the movie id as a parameter
 	const route = movie && `/movies/${movie.data.id}`;
 
+	// user state from redux
 	const userState = useSelector((state: State) => state.user);
 
 	const [isFavourite, setIsFavourite] = useState<boolean>(false);
 
 	useEffect(() => {
+		//get the array with favourite movies from the userSate from redux and check if the movie id is in the list
 		const favList = userState
 			? userState.favourite.map((fav: number) => fav)
 			: false;
@@ -26,6 +30,7 @@ const SpecificMovie = ({ movie, type }: State) => {
 			: setIsFavourite(false);
 	}, [userState]);
 
+	//add or move favourite movies
 	const dispatch = useDispatch();
 	const { setUser } = bindActionCreators(actionCreators, dispatch);
 
