@@ -1,7 +1,7 @@
 
 # My Movie Collection app
 
-An app that uses The Movie DB API help users search, rate, comment and add movies to favourites. I used bycrypt and jwt to create users and authenticate them. As well as JOI to validate user data when creating account. User data is stored in MongoDB.
+An app that uses The Movie DB API to help users search, rate, comment and add movies to favourites. I used bycrypt and jwt to create users and authenticate them as well as JOI to validate user data when creating account. User data is stored in MongoDB.
 
 
 
